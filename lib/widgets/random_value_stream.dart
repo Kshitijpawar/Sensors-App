@@ -2,10 +2,10 @@
 import 'dart:async';
 import 'dart:math';
 
-Stream<int> randomValueStream(Duration interval) async* {
-  final random = Random();
+Stream<int> randomValueStream({required Duration interval, required int maxVal, required int minVal}) async* {
+  // Stream<double> randomValueStream({required Duration interval, required double maxVal, required double minVal}) async* {
   while (true) {
     await Future.delayed(interval);
-    yield random.nextInt(100);
+   yield minVal + Random().nextInt((maxVal - minVal) as int);
   }
 }

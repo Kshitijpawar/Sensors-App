@@ -11,15 +11,26 @@ class SensorApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Sensors App',
-      home: HomeScreen(),
-      // home: Scaffold(
-      //   appBar: AppBar(
-      //     title: const Text("Testing graph widget"),
-      //   ),
-      //   body: Center(child: GraphWidget()),
-      // ),
+      // home: HomeScreen(),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text("Testing graph widget"),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Graph below"),
+              GraphWidget(
+                size: Size(double.infinity, 500),
+                maxPoints: 100,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,11 +1,15 @@
 // graph_widget.dart
-import 'dart:math';
+// import 'dart:math';
 
 import 'package:flutter/material.dart';
+// import 'package:sensors_plus/sensors_plus.dart';
 import 'random_value_stream.dart';
+import 'dart:async';
 
 class GraphWidget extends StatefulWidget {
-  const GraphWidget({super.key});
+  final Size size;
+  final int maxPoints;
+  const GraphWidget({super.key, required this.size, required this.maxPoints});
 
   @override
   _GraphWidgetState createState() => _GraphWidgetState();
@@ -13,22 +17,51 @@ class GraphWidget extends StatefulWidget {
 
 class _GraphWidgetState extends State<GraphWidget> {
   final List<int> _data = [];
-  final int _maxPoints = 10;
+  // final List<double> _data = [];
+  // final int _maxPoints = 100;
   Stream<int>? _stream;
+  // Stream<double>? _stream;
+  // Stream<double>? _accStream;
+  // final Size size = const Size(double.infinity, 200);
 
   @override
   void initState() {
     super.initState();
-    _stream = randomValueStream(const Duration(milliseconds: 2000));
+    _stream = randomValueStream(
+      interval: const Duration(
+        milliseconds: 50,
+      ),
+      maxVal: 500,
+      minVal: -500,
+    );
+
+    // _accStream = accelerometerEventStream().map<double>((AccelerometerEvent event) {
+      // return event.x;
+    // });
+  }
+
+  int getMaxVal(currMaxVal, currData) {
+    // print("I got till here");
+    if (currData >= currMaxVal) return currData;
+    return currMaxVal;
+  }
+
+  int getMinVal(currMinVal, currData) {
+    if (currData < currMinVal) return currData;
+    return currMinVal;
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<int>(
+    int maxYvalTest = widget.size.height ~/ 2;
+    int minYvalTest = -widget.size.height ~/ 2;
+    // return StreamBuilder<double>(
+      return StreamBuilder<int>(
       stream: _stream,
+      // stream: _accStream,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          if (_data.length >= _maxPoints) {
+          if (_data.length >= widget.maxPoints) {
             _data.removeAt(0);
           }
           _data.add(snapshot.data!);
@@ -45,10 +78,21 @@ class _GraphWidgetState extends State<GraphWidget> {
         //     return Text("${_data[index]}");
         //   },
         // );
-        print(_data);
+        // print(_data);
+
+        maxYvalTest =
+            _data.isNotEmpty ? getMaxVal(maxYvalTest, snapshot.data!) : 0;
+        minYvalTest =
+            _data.isNotEmpty ? getMinVal(minYvalTest, snapshot.data!) : 0;
+
         return CustomPaint(
-          size: Size(double.infinity, 100),
-          painter: NewGraphPainter(_data, maxPoints: _maxPoints),
+          size: widget.size,
+          painter: NewGraphPainter(
+            _data,
+            maxPoints: widget.maxPoints,
+            currMaxVal: maxYvalTest,
+            currMinVal: minYvalTest,
+          ),
         );
       },
     );
@@ -57,22 +101,23 @@ class _GraphWidgetState extends State<GraphWidget> {
 
 class NewGraphPainter extends CustomPainter {
   final List<int> data;
+  // final List<double> data;
 
   final int maxPoints;
+  final int currMaxVal;
+  final int currMinVal;
 
-  NewGraphPainter(this.data, {required this.maxPoints});
-
+  NewGraphPainter(
+    this.data, {
+    required this.maxPoints,
+    required this.currMaxVal,
+    required this.currMinVal,
+  });
   @override
   void paint(Canvas canvas, Size size) {
-      final int maxYval = data.isNotEmpty?data.reduce(max):0;
-
-    final paint = Paint()
-      ..color = Colors.blue
-      ..strokeWidth = 2.0;
-
     final Paint _paint = Paint()
       ..color = Colors.black
-      ..strokeWidth = 4.0
+      ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke
       ..strokeJoin = StrokeJoin.round;
 
@@ -80,20 +125,24 @@ class NewGraphPainter extends CustomPainter {
       ..color = Colors.black
       ..strokeWidth = 1.0;
 
+    // draw y-axis
     canvas.drawLine(Offset(10, 0), Offset(10, size.height), axisPaint);
-    canvas.drawLine(
-        Offset(0, size.height), Offset(size.width, size.height), axisPaint);
+    // draw x-axis
     // canvas.drawLine(
-    //     Offset(0, size.height), Offset(size.width, size.height), axisPaint);
-// Draw the graph line
+    // Offset(0, size.height), Offset(size.width, size.height), axisPaint);
+    canvas.drawLine(Offset(0, size.height / 2),
+        Offset(size.width, size.height / 2), axisPaint);
+    // Draw the graph line
     final path = Path();
-    
+
     if (data.isNotEmpty) {
       for (int i = 0; i < data.length; i += 1) {
-
         double x = (size.width / maxPoints) * i + 10;
         // double y = (size.height) - (data[i] * (maxYval / size.height));
-        double y = size.height - (data[i] * (maxYval / size.height));
+        double y = data[i] >= 0
+            ? (size.height / 2) - ((data[i] * size.height / 2) / currMaxVal)
+            : (size.height / 2) +
+                ((data[i] * size.height / 2) / (currMinVal.abs())).abs();
         if (i == 0) {
           path.moveTo(10, y);
         } else {
@@ -109,84 +158,4 @@ class NewGraphPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return true;
   }
-}
-
-class GraphPainter extends CustomPainter {
-  final List<int> data;
-  final int maxPoints;
-
-  GraphPainter(this.data, {this.maxPoints = 100});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.blue
-      ..strokeWidth = 2.0;
-    final axisPaint = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 1.0;
-
-    // Draw axes
-    canvas.drawLine(Offset(0, 0), Offset(0, size.height), axisPaint);
-    canvas.drawLine(
-        Offset(0, size.height), Offset(size.width, size.height), axisPaint);
-
-    // // Draw tick marks and labels for the Y axis
-    // var yAxisSteps = 5;
-    // var maxDataValue = 100.0; // Assuming max Y value is 100 for simplicity
-    // var step = maxDataValue / yAxisSteps;
-    // for (var i = 0; i <= yAxisSteps; i++) {
-    //   double y = size.height - (size.height * i / yAxisSteps);
-    //   canvas.drawLine(Offset(-10, y), Offset(0, y), axisPaint);
-    //   _drawText(canvas, "${(step * i).toInt()}", -30, y - 6);
-    // }
-
-    // Draw tick marks and labels for the X axis
-    // var xAxisSteps = maxPoints;
-    // var xStep = size.width / xAxisSteps;
-    // for (var i = 0; i <= xAxisSteps; i += 10) {
-    //   // Adjust step for readability
-    //   double x = xStep * i;
-    //   canvas.drawLine(
-    //       Offset(x, size.height), Offset(x, size.height + 10), axisPaint);
-    //   _drawText(canvas, "$i", x - 10, size.height + 20);
-    // }
-
-    // Draw the graph line
-    final path = Path();
-    if (data.isNotEmpty) {
-      double xSpacing = size.width / (maxPoints - 1);
-      for (int i = 0; i < data.length; i += 2) {
-        double x = data[i] * xSpacing;
-        double y = size.height - data[i + 1];
-        if (i == 0) {
-          path.moveTo(x, y);
-        } else {
-          path.lineTo(x, y);
-        }
-      }
-    }
-
-    canvas.drawPath(path, paint);
-  }
-
-  // Helper function to draw text on canvas
-  void _drawText(Canvas canvas, String text, double x, double y) {
-    final textSpan = TextSpan(
-      text: text,
-      style: TextStyle(color: Colors.black, fontSize: 12),
-    );
-    final textPainter = TextPainter(
-      text: textSpan,
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout(
-      minWidth: 0,
-      maxWidth: double.infinity,
-    );
-    textPainter.paint(canvas, Offset(x, y));
-  }
-
-  @override
-  bool shouldRepaint(GraphPainter oldDelegate) => true;
 }
