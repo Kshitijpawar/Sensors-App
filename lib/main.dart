@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sensors_app/widgets/graph_widget.dart';
-import 'package:sensors_app/widgets/home_screen.dart';
 
 void main() {
   runApp(SensorApp());
@@ -16,7 +15,7 @@ class SensorApp extends StatelessWidget {
       // home: HomeScreen(),
       home: Scaffold(
         appBar: AppBar(
-          title: Text("Testing graph widget"),
+          title: const Text("Testing graph widget"),
         ),
         body: const Center(
           child: Column(
