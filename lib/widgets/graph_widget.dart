@@ -42,8 +42,9 @@ class _GraphWidgetState extends State<GraphWidget> {
   }
 
   double getMaxVal(currMaxVal, currData) {
-    print("I got till here");
-    if (currData.abs() >= currMaxVal) return currData;
+    // something in the way hmmmmmmmmmm.. ok so i dont why i was abs currData
+
+    if (currData >= currMaxVal) return currData;
     return currMaxVal;
   }
 
@@ -63,9 +64,8 @@ class _GraphWidgetState extends State<GraphWidget> {
       // stream: _stream,
       stream: _accStream,
       builder: (context, snapshot) {
-        print("im inside builder");
         if (snapshot.hasData) {
-          print(snapshot.data);
+          // print(snapshot.data);
           if (_data.length >= widget.maxPoints) {
             _data.removeAt(0);
           }
@@ -153,7 +153,8 @@ class NewGraphPainter extends CustomPainter {
         if (i == 0) {
           path.moveTo(10, y);
         } else {
-          print("calculating $x and $y with $currMaxVal as max and $currMinVal as min val");
+          if (y > size.height)
+          {print("calculating $x and y : $y (data was : ${data[i]}) with $currMaxVal as max and $currMinVal as min val");}
           path.lineTo(x, y);
         }
         // path.lineTo(x, y);

@@ -30,9 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     _accelerometerStream = userAccelerometerEventStream(
-        samplingPeriod: const Duration(seconds: 2));
+        samplingPeriod: const Duration(seconds: 1));
     _gyroscopeStream =
-        gyroscopeEventStream(samplingPeriod: const Duration(seconds: 2));
+        gyroscopeEventStream(samplingPeriod: const Duration(seconds: 1));
 
     // // accelerometer event stream
     // userAccelerometerEventStream(samplingPeriod: const Duration(seconds: 1))
