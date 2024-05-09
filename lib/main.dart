@@ -24,7 +24,7 @@ class SensorApp extends StatelessWidget {
             children: [
               Text("Graph below"),
               GraphWidget(
-                size: Size(double.infinity, 500),
+                size: Size(double.infinity, 600),
                 maxPoints: 100,
               ),
             ],
