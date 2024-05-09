@@ -9,7 +9,12 @@ import 'dart:async';
 class GraphWidget extends StatefulWidget {
   final Size size;
   final int maxPoints;
-  const GraphWidget({super.key, required this.size, required this.maxPoints});
+  final String axisName;
+  const GraphWidget(
+      {super.key,
+      required this.size,
+      required this.maxPoints,
+      required this.axisName});
 
   @override
   _GraphWidgetState createState() => _GraphWidgetState();
@@ -37,7 +42,16 @@ class _GraphWidgetState extends State<GraphWidget> {
 
     _accStream =
         accelerometerEventStream().map<double>((AccelerometerEvent event) {
-      return event.x;
+      switch (widget.axisName) {
+        case "x-axis":
+          return event.x;
+        case "y-axis":
+          return event.y;
+        case "z-axis":
+          return event.z;
+        default:
+          return event.x;
+      }
     });
   }
 
@@ -91,14 +105,18 @@ class _GraphWidgetState extends State<GraphWidget> {
         minYvalTest = snapshot.data != null
             ? getMinVal(minYvalTest, snapshot.data!)
             : minYvalTest;
-        print("the max values is $maxYvalTest and the min val is $minYvalTest");
-        return CustomPaint(
-          size: widget.size,
-          painter: NewGraphPainter(
-            _data,
-            maxPoints: widget.maxPoints,
-            currMaxVal: maxYvalTest,
-            currMinVal: minYvalTest,
+        // print("the max values is $maxYvalTest and the min val is $minYvalTest");
+        return Container(
+          margin: const EdgeInsets.fromLTRB(0, 3.0, 0, 3.0),
+          decoration: BoxDecoration(border: Border.all(color: Colors.red)),
+          child: CustomPaint(
+            size: widget.size,
+            painter: NewGraphPainter(
+              _data,
+              maxPoints: widget.maxPoints,
+              currMaxVal: maxYvalTest,
+              currMinVal: minYvalTest,
+            ),
           ),
         );
       },
@@ -153,8 +171,10 @@ class NewGraphPainter extends CustomPainter {
         if (i == 0) {
           path.moveTo(10, y);
         } else {
-          if (y > size.height)
-          {print("calculating $x and y : $y (data was : ${data[i]}) with $currMaxVal as max and $currMinVal as min val");}
+          // if (y > size.height) {
+          //   print(
+          //       "calculating $x and y : $y (data was : ${data[i]}) with $currMaxVal as max and $currMinVal as min val");
+          // }
           path.lineTo(x, y);
         }
         // path.lineTo(x, y);
