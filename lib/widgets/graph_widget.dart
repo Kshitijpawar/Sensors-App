@@ -2,7 +2,7 @@
 // import 'dart:math';
 
 import 'package:flutter/material.dart';
-// import 'package:sensors_plus/sensors_plus.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import 'random_value_stream.dart';
 import 'dart:async';
 
@@ -16,51 +16,56 @@ class GraphWidget extends StatefulWidget {
 }
 
 class _GraphWidgetState extends State<GraphWidget> {
-  final List<int> _data = [];
-  // final List<double> _data = [];
+  // final List<int> _data = [];
+  final List<double> _data = [];
   // final int _maxPoints = 100;
-  Stream<int>? _stream;
+  // Stream<int>? _stream;
   // Stream<double>? _stream;
-  // Stream<double>? _accStream;
+  Stream<double>? _accStream;
   // final Size size = const Size(double.infinity, 200);
 
   @override
   void initState() {
     super.initState();
-    _stream = randomValueStream(
-      interval: const Duration(
-        milliseconds: 50,
-      ),
-      maxVal: 500,
-      minVal: -500,
-    );
+    // _stream = randomValueStream(
+    //   interval: const Duration(
+    //     milliseconds: 100,
+    //   ),
+    //   maxVal: 500.0,
+    //   minVal: -500.0,
+    // );
 
-    // _accStream = accelerometerEventStream().map<double>((AccelerometerEvent event) {
-      // return event.x;
-    // });
+    _accStream =
+        accelerometerEventStream().map<double>((AccelerometerEvent event) {
+      return event.x;
+    });
   }
 
-  int getMaxVal(currMaxVal, currData) {
-    // print("I got till here");
+  double getMaxVal(currMaxVal, currData) {
+    // something in the way hmmmmmmmmmm.. ok so i dont why i was abs currData
+
     if (currData >= currMaxVal) return currData;
     return currMaxVal;
   }
 
-  int getMinVal(currMinVal, currData) {
+  double getMinVal(currMinVal, currData) {
     if (currData < currMinVal) return currData;
     return currMinVal;
   }
 
   @override
   Widget build(BuildContext context) {
-    int maxYvalTest = widget.size.height ~/ 2;
-    int minYvalTest = -widget.size.height ~/ 2;
-    // return StreamBuilder<double>(
-      return StreamBuilder<int>(
-      stream: _stream,
-      // stream: _accStream,
+    // double maxYvalTest = widget.size.height / 2;
+    // double minYvalTest = -widget.size.height / 2;
+    late double maxYvalTest = -double.infinity;
+    late double minYvalTest = double.infinity;
+    return StreamBuilder<double>(
+      // return StreamBuilder<int>(
+      // stream: _stream,
+      stream: _accStream,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
+          // print(snapshot.data);
           if (_data.length >= widget.maxPoints) {
             _data.removeAt(0);
           }
@@ -80,11 +85,13 @@ class _GraphWidgetState extends State<GraphWidget> {
         // );
         // print(_data);
 
-        maxYvalTest =
-            _data.isNotEmpty ? getMaxVal(maxYvalTest, snapshot.data!) : 0;
-        minYvalTest =
-            _data.isNotEmpty ? getMinVal(minYvalTest, snapshot.data!) : 0;
-
+        maxYvalTest = snapshot.data != null
+            ? getMaxVal(maxYvalTest, snapshot.data!)
+            : maxYvalTest;
+        minYvalTest = snapshot.data != null
+            ? getMinVal(minYvalTest, snapshot.data!)
+            : minYvalTest;
+        print("the max values is $maxYvalTest and the min val is $minYvalTest");
         return CustomPaint(
           size: widget.size,
           painter: NewGraphPainter(
@@ -100,12 +107,12 @@ class _GraphWidgetState extends State<GraphWidget> {
 }
 
 class NewGraphPainter extends CustomPainter {
-  final List<int> data;
-  // final List<double> data;
+  // final List<int> data;
+  final List<double> data;
 
   final int maxPoints;
-  final int currMaxVal;
-  final int currMinVal;
+  final double currMaxVal;
+  final double currMinVal;
 
   NewGraphPainter(
     this.data, {
@@ -146,6 +153,8 @@ class NewGraphPainter extends CustomPainter {
         if (i == 0) {
           path.moveTo(10, y);
         } else {
+          if (y > size.height)
+          {print("calculating $x and y : $y (data was : ${data[i]}) with $currMaxVal as max and $currMinVal as min val");}
           path.lineTo(x, y);
         }
         // path.lineTo(x, y);
