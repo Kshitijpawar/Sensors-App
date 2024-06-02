@@ -38,25 +38,47 @@ class _SensorAppState extends State<SensorApp> {
           ],
         ),
         body: _showGraph
-            ? const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
+            ? Center(
+                child: ListView(
+                  addAutomaticKeepAlives: true,
+                  // mainAxisAlignment: MainAxisAlignment.start,
+                  children: const [
                     Text("Graph below"),
                     GraphWidget(
                       size: Size(double.infinity, 200),
                       maxPoints: 100,
                       axisName: "x-axis",
+                      sensorType: "accelerometer",
                     ),
                     GraphWidget(
                       size: Size(double.infinity, 200),
                       maxPoints: 100,
                       axisName: "y-axis",
+                      sensorType: "accelerometer",
                     ),
                     GraphWidget(
                       size: Size(double.infinity, 200),
                       maxPoints: 100,
                       axisName: "z-axis",
+                      sensorType: "accelerometer",
+                    ),
+                    GraphWidget(
+                      size: Size(double.infinity, 200),
+                      maxPoints: 100,
+                      axisName: "x-axis",
+                      sensorType: "gyroscope",
+                    ),
+                    GraphWidget(
+                      size: Size(double.infinity, 200),
+                      maxPoints: 100,
+                      axisName: "y-axis",
+                      sensorType: "gyroscope",
+                    ),
+                    GraphWidget(
+                      size: Size(double.infinity, 200),
+                      maxPoints: 100,
+                      axisName: "z-axis",
+                      sensorType: "gyroscope",
                     ),
                   ],
                 ),

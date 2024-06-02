@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'dart:async';
@@ -7,36 +6,70 @@ class GraphWidget extends StatefulWidget {
   final Size size;
   final int maxPoints;
   final String axisName;
-  const GraphWidget(
-      {super.key,
-      required this.size,
-      required this.maxPoints,
-      required this.axisName});
+  final String sensorType;
+  const GraphWidget({
+    super.key,
+    required this.size,
+    required this.maxPoints,
+    required this.axisName,
+    required this.sensorType,
+  });
 
   @override
   _GraphWidgetState createState() => _GraphWidgetState();
 }
 
-class _GraphWidgetState extends State<GraphWidget> {
+class _GraphWidgetState extends State<GraphWidget> with AutomaticKeepAliveClientMixin{
   final List<double> _data = [];
-  Stream<double>? _accStream;
+  // Stream<double>? _accStream;
+  Stream<double>? _sensorStream;
 
   @override
   void initState() {
     super.initState();
-    _accStream =
-        accelerometerEventStream().map<double>((AccelerometerEvent event) {
-      switch (widget.axisName) {
-        case "x-axis":
-          return event.x;
-        case "y-axis":
-          return event.y;
-        case "z-axis":
-          return event.z;
-        default:
-          return event.x;
-      }
-    });
+    // _accStream =
+    //     accelerometerEventStream().map<double>((AccelerometerEvent event) {
+    //   switch (widget.axisName) {
+    //     case "x-axis":
+    //       return event.x;
+    //     case "y-axis":
+    //       return event.y;
+    //     case "z-axis":
+    //       return event.z;
+    //     default:
+    //       return event.x;
+    //   }
+    // });
+
+    if (widget.sensorType == "accelerometer") {
+      _sensorStream =
+          accelerometerEventStream().map<double>((AccelerometerEvent event) {
+        switch (widget.axisName) {
+          case "x-axis":
+            return event.x;
+          case "y-axis":
+            return event.y;
+          case "z-axis":
+            return event.z;
+          default:
+            return event.x;
+        }
+      });
+    } else if (widget.sensorType == "gyroscope") {
+      _sensorStream =
+          gyroscopeEventStream().map<double>((GyroscopeEvent event) {
+        switch (widget.axisName) {
+          case "x-axis":
+            return event.x;
+          case "y-axis":
+            return event.y;
+          case "z-axis":
+            return event.z;
+          default:
+            return event.x;
+        }
+      });
+    }
   }
 
   double getMaxVal(currMaxVal, currData) {
@@ -54,7 +87,8 @@ class _GraphWidgetState extends State<GraphWidget> {
     late double maxYvalTest = -double.infinity;
     late double minYvalTest = double.infinity;
     return StreamBuilder<double>(
-      stream: _accStream,
+      // stream: _accStream,
+      stream: _sensorStream,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           if (_data.length >= widget.maxPoints) {
@@ -84,6 +118,9 @@ class _GraphWidgetState extends State<GraphWidget> {
       },
     );
   }
+  
+  @override
+  bool get wantKeepAlive =>true;
 }
 
 class NewGraphPainter extends CustomPainter {
