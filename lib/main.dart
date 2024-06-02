@@ -5,9 +5,15 @@ void main() {
   runApp(SensorApp());
 }
 
-class SensorApp extends StatelessWidget {
+class SensorApp extends StatefulWidget {
   SensorApp({super.key});
 
+  @override
+  State<SensorApp> createState() => _SensorAppState();
+}
+
+class _SensorAppState extends State<SensorApp> {
+  bool _showGraph = false;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,30 +22,48 @@ class SensorApp extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(
           title: const Text("Testing graph widget"),
+          actions: [
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  if (_showGraph) {
+                    _showGraph = false;
+                  } else {
+                    _showGraph = true;
+                  }
+                });
+              },
+              icon: _showGraph ? Icon(Icons.draw) : Icon(Icons.draw_outlined),
+            ),
+          ],
         ),
-        body: const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text("Graph below"),
-              GraphWidget(
-                size: Size(double.infinity, 200),
-                maxPoints: 100,
-                axisName: "x-axis",
+        body: _showGraph
+            ? const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text("Graph below"),
+                    GraphWidget(
+                      size: Size(double.infinity, 200),
+                      maxPoints: 100,
+                      axisName: "x-axis",
+                    ),
+                    GraphWidget(
+                      size: Size(double.infinity, 200),
+                      maxPoints: 100,
+                      axisName: "y-axis",
+                    ),
+                    GraphWidget(
+                      size: Size(double.infinity, 200),
+                      maxPoints: 100,
+                      axisName: "z-axis",
+                    ),
+                  ],
+                ),
+              )
+            : const Center(
+                child: Text("Welcome!"),
               ),
-              GraphWidget(
-                size: Size(double.infinity, 200),
-                maxPoints: 100,
-                axisName: "y-axis",
-              ),
-              GraphWidget(
-                size: Size(double.infinity, 200),
-                maxPoints: 100,
-                axisName: "z-axis",
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
