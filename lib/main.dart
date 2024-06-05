@@ -1,8 +1,15 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 // import 'package:sensors_app/widgets/alert_dialog.dart';
 import 'package:sensors_app/widgets/graph_widget.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:sensors_plus/sensors_plus.dart';
+
+import 'widgets/stream_transform.dart';
 
 void main() {
   runApp(
@@ -23,11 +30,24 @@ class _SensorAppState extends State<SensorApp> {
   bool _showGraph = false;
   late TextEditingController controller;
   String newName = '';
-
+  late Stream<AccelerometerEvent> intervalAccelerometerStream;
+  late Stream<GyroscopeEvent> intervalGyroscopeStream;
+  late Uri url;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    url = Uri.https(
+        'flutter-prep-bda5b-default-rtdb.firebaseio.com', 'new-list.json');
+
+    // Stream<AccelerometerEvent> intervalAccelerometerStream =
+    //     accelerometerEventStream().transform(
+    //         IntervalTransformer<AccelerometerEvent>(Duration(seconds: 2)));
+
+    Stream<GyroscopeEvent> intervalGyroscopeStream = gyroscopeEventStream()
+        .transform(IntervalTransformer<GyroscopeEvent>(Duration(seconds: 2)));
+    // print("Sensors initialized");
     controller = TextEditingController();
   }
 
@@ -59,8 +79,11 @@ class _SensorAppState extends State<SensorApp> {
             onPressed: () async {
               final name = await openDialog();
               if (name == null || name.isEmpty) return;
-              
-              setState(() { newName = name; _saveItem();});
+
+              setState(() {
+                newName = name;
+                _saveItem();
+              });
             },
             icon: Icon(
               Icons.mic_off_outlined,
@@ -145,29 +168,63 @@ class _SensorAppState extends State<SensorApp> {
         ),
       );
   void submit() {
-    
     Navigator.of(context).pop(controller.text);
   }
 
   void _saveItem() async {
-    final url = Uri.https(
-        'flutter-prep-bda5b-default-rtdb.firebaseio.com', 'new-list.json');
+    Stream<AccelerometerEvent> intervalAccelerometerStream =
+        accelerometerEventStream().transform(
+            IntervalTransformer<AccelerometerEvent>(Duration(milliseconds: 500  )));
+    print("sensors initialized");
+    intervalAccelerometerStream.listen((event) async {
+      print(event);
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode(
-        {
-          "name": this.newName,
-          "timestamp": DateTime.now().toString(),
-          // "quantity": _enteredQuantity,
-          // "category": _selectedCategory.title,
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
         },
-      ),
-    );
-    print(response.body);
-    print(response.statusCode);
+        body: json.encode(
+          {
+            "sensor_type": "accelerometer",
+            "file_name": this.newName,
+            "data" : {
+              "x" : event.x,
+              "y" : event.y,
+              "z" : event.z,
+            }
+          },
+        ),
+      );
+
+      print(response.body);
+      print(response.statusCode);
+    });
+    // final url = Uri.https(
+    // 'flutter-prep-bda5b-default-rtdb.firebaseio.com', 'new-list.json');
+
+    // final response = await http.post(
+    //   url,
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: json.encode(
+    //     {
+    //       "name": this.newName,
+    //       "timestamp": DateTime.now().toString(),
+    //       // "quantity": _enteredQuantity,
+    //       // "category": _selectedCategory.title,
+    //     },
+    //   ),
+    // );
+    // print(response.body);
+    // print(response.statusCode);
+  }
+
+  Future<int> myFuture(int n) async {
+    var seconds = Random().nextInt(25);
+    Future.delayed(Duration(seconds: seconds)); // Mock future
+    print("Future finished for: $n, completion time: $seconds");
+    return n;
   }
 }
