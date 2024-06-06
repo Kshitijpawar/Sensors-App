@@ -1,17 +1,12 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:sensors_app/streaming_functions.dart';
-// import 'package:sensors_app/widgets/alert_dialog.dart';
 import 'package:sensors_app/widgets/graph_widget.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 import 'package:sensors_plus/sensors_plus.dart';
 
 import 'firebase_options.dart';
-import 'models/sensor.dart';
 import 'widgets/stream_transform.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -46,26 +41,17 @@ class _SensorAppState extends State<SensorApp> {
   late Stream<AccelerometerEvent> intervalAccelerometerStream;
   late Stream<GyroscopeEvent> intervalGyroscopeStream;
   late StreamSubscription intervalSubscription;
-  // ignore: unused_field
   late StreamSubscription _intervalSubscription;
   late Uri url;
   late FirebaseDatabase database;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     database = FirebaseDatabase.instance;
-    url = Uri.https(
-        'flutter-prep-bda5b-default-rtdb.firebaseio.com', 'new-list.json');
-
-    // Stream<AccelerometerEvent> intervalAccelerometerStream =
-    //     accelerometerEventStream().transform(
-    //         IntervalTransformer<AccelerometerEvent>(Duration(seconds: 2)));
 
     Stream<GyroscopeEvent> intervalGyroscopeStream = gyroscopeEventStream()
         .transform(IntervalTransformer<GyroscopeEvent>(Duration(seconds: 2)));
-    // print("Sensors initialized");
     controller = TextEditingController();
   }
 
@@ -97,17 +83,13 @@ class _SensorAppState extends State<SensorApp> {
               ? IconButton(
                   onPressed: () {
                     print("try to stop the stream");
-                    // if (stopStream == false) {
-                    // setState(() {
                     stopStream = true;
                     setState(() {
                       _streaming = false;
                       intervalSubscription.cancel();
                     });
                   },
-                  icon: Icon(
-                    Icons.stop,
-                  ),
+                  icon: Icon(Icons.stop),
                 )
               : IconButton(
                   onPressed: () async {
@@ -124,12 +106,11 @@ class _SensorAppState extends State<SensorApp> {
                       _streaming = true;
                       newName = name;
                       // _saveItem(name,);
-                       intervalSubscription = saveItem(name, stopStream, database);
+                      intervalSubscription =
+                          saveItem(name, stopStream, database);
                     });
                   },
-                  icon: Icon(
-                    Icons.mic_off_outlined,
-                  ),
+                  icon: Icon(Icons.mic_off_outlined),
                 ),
         ],
       ),
@@ -137,7 +118,6 @@ class _SensorAppState extends State<SensorApp> {
           ? Center(
               child: ListView(
                 addAutomaticKeepAlives: true,
-                // mainAxisAlignment: MainAxisAlignment.start,
                 children: const [
                   Text("Graph below"),
                   GraphWidget(
@@ -192,61 +172,5 @@ class _SensorAppState extends State<SensorApp> {
     );
   }
 
-  // Future<String?> openDialog() => showDialog<String>(
-  //       context: context,
-  //       builder: (context) => AlertDialog(
-  //         title: Text("Your Name"),
-  //         content: TextField(
-  //           controller: controller,
-  //           autofocus: true,
-  //           decoration: InputDecoration(hintText: "enter your name"),
-  //         ),
-  //         actions: <Widget>[
-  //           TextButton(
-  //             onPressed: submit,
-  //             child: Text("Submit"),
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  // void submit() {
-  //   Navigator.of(context).pop(controller.text);
-  // }
-
-  // // void _updateItem() async {
-  // //   return;
-  // // }
-
-  // void _saveItem(String file_name,) async {
-  //   Stream<AccelerometerEvent> intervalAccelerometerStream =
-  //       accelerometerEventStream().transform(
-  //     IntervalTransformer<AccelerometerEvent>(
-  //       Duration(
-  //         milliseconds: 100,
-  //       ),
-  //     ),
-  //   );
-  //   print("sensors initialized");
-
-  //   _intervalSubscription = intervalAccelerometerStream.listen((event) async {
-  //     if (stopStream) {
-  //       _intervalSubscription.cancel();
-  //     }
-  //     print(event);
-  //     // print(file_name);
-  //     DatabaseReference ref = database.ref("users/$file_name");
-  //     DatabaseReference newRef = ref.push();
-  //     newRef.set({
-  //       "data": {
-  //         // "x": Random().nextDouble(),
-  //         "x": event.x,
-  //         "y": event.y,
-  //         "z": event.z,
-  //         "timestamp": DateTime.now().toString(),
-  //       },
-  //     });
-
-  //   });
-
-  // }
+  
 }
