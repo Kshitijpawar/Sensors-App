@@ -9,9 +9,19 @@ import 'dart:convert';
 
 import 'package:sensors_plus/sensors_plus.dart';
 
+import 'firebase_options.dart';
+import 'models/sensor.dart';
 import 'widgets/stream_transform.dart';
 
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(
     MaterialApp(
       home: SensorApp(),
@@ -33,11 +43,13 @@ class _SensorAppState extends State<SensorApp> {
   late Stream<AccelerometerEvent> intervalAccelerometerStream;
   late Stream<GyroscopeEvent> intervalGyroscopeStream;
   late Uri url;
+  late FirebaseDatabase database;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
+    database = FirebaseDatabase.instance;
     url = Uri.https(
         'flutter-prep-bda5b-default-rtdb.firebaseio.com', 'new-list.json');
 
@@ -64,6 +76,28 @@ class _SensorAppState extends State<SensorApp> {
         title: const Text("Testing graph widget"),
         actions: [
           IconButton(
+            onPressed: () async {
+              DatabaseReference ref = database.ref("users/123");
+
+              await ref.set({
+                "file_name": "new_file",
+                "sensor_type": "accelerometer",
+              });
+            },
+            icon: Icon(Icons.phone_android),
+          ),
+          IconButton(
+            onPressed: () async {
+              DatabaseReference ref = database.ref("users/123");
+              DatabaseReference newRef = ref.push();
+
+              await newRef.set({
+                "data": {"x": 1}
+              });
+            },
+            icon: Icon(Icons.add),
+          ),
+          IconButton(
             onPressed: () {
               setState(() {
                 if (_showGraph) {
@@ -79,10 +113,16 @@ class _SensorAppState extends State<SensorApp> {
             onPressed: () async {
               final name = await openDialog();
               if (name == null || name.isEmpty) return;
+              DatabaseReference ref = database.ref("users/$name");
 
+              await ref.set({
+                // "file_name": "$name",
+                "file_name": "$name",
+                "sensor_type": "accelerometer",
+              });
               setState(() {
                 newName = name;
-                _saveItem();
+                _saveItem(name, ref);
               });
             },
             icon: Icon(
@@ -171,34 +211,56 @@ class _SensorAppState extends State<SensorApp> {
     Navigator.of(context).pop(controller.text);
   }
 
-  void _saveItem() async {
+  // void _updateItem() async {
+  //   return;
+  // }
+
+  void _saveItem(String file_name, DatabaseReference ref) async {
     Stream<AccelerometerEvent> intervalAccelerometerStream =
         accelerometerEventStream().transform(
-            IntervalTransformer<AccelerometerEvent>(Duration(milliseconds: 500  )));
-    print("sensors initialized");
-    intervalAccelerometerStream.listen((event) async {
-      print(event);
-
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode(
-          {
-            "sensor_type": "accelerometer",
-            "file_name": this.newName,
-            "data" : {
-              "x" : event.x,
-              "y" : event.y,
-              "z" : event.z,
-            }
-          },
+      IntervalTransformer<AccelerometerEvent>(
+        Duration(
+          milliseconds: 100,
         ),
-      );
+      ),
+    );
+    print("sensors initialized");
 
-      print(response.body);
-      print(response.statusCode);
+    intervalAccelerometerStream.listen((event) async {
+      // print(event);
+      // print(file_name);
+      DatabaseReference ref = database.ref("users/$file_name");
+      DatabaseReference newRef = ref.push();
+      newRef.set({
+        "data": {
+          // "x": Random().nextDouble(),
+          "x": event.x,
+          "y": event.y,
+          "z": event.z,
+          "timestamp": DateTime.now().toString(),
+        },
+      });
+
+      // final response = await http.post(
+      //   url,
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: json.encode(
+      //     {
+      //       "sensor_type": "accelerometer",
+      //       "file_name": this.newName,
+      //       "data": {
+      //         "x": event.x,
+      //         "y": event.y,
+      //         "z": event.z,
+      //       }
+      //     },
+      //   ),
+      // );
+
+      // print(response.body);
+      // print(response.statusCode);
     });
     // final url = Uri.https(
     // 'flutter-prep-bda5b-default-rtdb.firebaseio.com', 'new-list.json');
