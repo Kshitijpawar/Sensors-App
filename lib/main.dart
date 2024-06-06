@@ -38,10 +38,14 @@ class SensorApp extends StatefulWidget {
 
 class _SensorAppState extends State<SensorApp> {
   bool _showGraph = false;
+  bool _streaming = false;
+  bool stopStream = false;
   late TextEditingController controller;
   String newName = '';
   late Stream<AccelerometerEvent> intervalAccelerometerStream;
   late Stream<GyroscopeEvent> intervalGyroscopeStream;
+  // ignore: unused_field
+  late StreamSubscription _intervalSubscription;
   late Uri url;
   late FirebaseDatabase database;
   @override
@@ -71,32 +75,12 @@ class _SensorAppState extends State<SensorApp> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text("Testing graph widget"),
         actions: [
-          IconButton(
-            onPressed: () async {
-              DatabaseReference ref = database.ref("users/123");
-
-              await ref.set({
-                "file_name": "new_file",
-                "sensor_type": "accelerometer",
-              });
-            },
-            icon: Icon(Icons.phone_android),
-          ),
-          IconButton(
-            onPressed: () async {
-              DatabaseReference ref = database.ref("users/123");
-              DatabaseReference newRef = ref.push();
-
-              await newRef.set({
-                "data": {"x": 1}
-              });
-            },
-            icon: Icon(Icons.add),
-          ),
+          
           IconButton(
             onPressed: () {
               setState(() {
@@ -109,26 +93,46 @@ class _SensorAppState extends State<SensorApp> {
             },
             icon: _showGraph ? Icon(Icons.draw) : Icon(Icons.draw_outlined),
           ),
-          IconButton(
-            onPressed: () async {
-              final name = await openDialog();
-              if (name == null || name.isEmpty) return;
-              DatabaseReference ref = database.ref("users/$name");
+          _streaming
+              ? IconButton(
+                  onPressed: () {
+                    print("try to stop the stream");
+                    // if (stopStream == false) {
+                      // setState(() {
+  stopStream = true;
+  setState(() {
+  _streaming = false;
+  });
+// });
+                    // }
 
-              await ref.set({
-                // "file_name": "$name",
-                "file_name": "$name",
-                "sensor_type": "accelerometer",
-              });
-              setState(() {
-                newName = name;
-                _saveItem(name, ref);
-              });
-            },
-            icon: Icon(
-              Icons.mic_off_outlined,
-            ),
-          ),
+                    // intervalAccelerometerStream.pause();
+                  },
+                  icon: Icon(
+                    Icons.stop,
+                  ),
+                )
+              : IconButton(
+                  onPressed: () async {
+                    final name = await openDialog();
+                    if (name == null || name.isEmpty) return;
+                    DatabaseReference ref = database.ref("users/$name");
+
+                    await ref.set({
+                      // "file_name": "$name",
+                      "file_name": "$name",
+                      "sensor_type": "accelerometer",
+                    });
+                    setState(() {
+                      _streaming = true;
+                      newName = name;
+                      _saveItem(name,);
+                    });
+                  },
+                  icon: Icon(
+                    Icons.mic_off_outlined,
+                  ),
+                ),
         ],
       ),
       body: _showGraph
@@ -215,7 +219,7 @@ class _SensorAppState extends State<SensorApp> {
   //   return;
   // }
 
-  void _saveItem(String file_name, DatabaseReference ref) async {
+  void _saveItem(String file_name,) async {
     Stream<AccelerometerEvent> intervalAccelerometerStream =
         accelerometerEventStream().transform(
       IntervalTransformer<AccelerometerEvent>(
@@ -226,8 +230,11 @@ class _SensorAppState extends State<SensorApp> {
     );
     print("sensors initialized");
 
-    intervalAccelerometerStream.listen((event) async {
-      // print(event);
+    _intervalSubscription = intervalAccelerometerStream.listen((event) async {
+      if (stopStream) {
+        _intervalSubscription.cancel();
+      }
+      print(event);
       // print(file_name);
       DatabaseReference ref = database.ref("users/$file_name");
       DatabaseReference newRef = ref.push();
@@ -281,12 +288,5 @@ class _SensorAppState extends State<SensorApp> {
     // );
     // print(response.body);
     // print(response.statusCode);
-  }
-
-  Future<int> myFuture(int n) async {
-    var seconds = Random().nextInt(25);
-    Future.delayed(Duration(seconds: seconds)); // Mock future
-    print("Future finished for: $n, completion time: $seconds");
-    return n;
   }
 }
