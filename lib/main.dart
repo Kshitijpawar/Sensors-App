@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:sensors_app/streaming_functions.dart';
 // import 'package:sensors_app/widgets/alert_dialog.dart';
 import 'package:sensors_app/widgets/graph_widget.dart';
 import 'package:http/http.dart' as http;
@@ -44,6 +45,7 @@ class _SensorAppState extends State<SensorApp> {
   String newName = '';
   late Stream<AccelerometerEvent> intervalAccelerometerStream;
   late Stream<GyroscopeEvent> intervalGyroscopeStream;
+  late StreamSubscription intervalSubscription;
   // ignore: unused_field
   late StreamSubscription _intervalSubscription;
   late Uri url;
@@ -75,12 +77,10 @@ class _SensorAppState extends State<SensorApp> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       appBar: AppBar(
         title: const Text("Testing graph widget"),
         actions: [
-          
           IconButton(
             onPressed: () {
               setState(() {
@@ -98,15 +98,12 @@ class _SensorAppState extends State<SensorApp> {
                   onPressed: () {
                     print("try to stop the stream");
                     // if (stopStream == false) {
-                      // setState(() {
-  stopStream = true;
-  setState(() {
-  _streaming = false;
-  });
-// });
-                    // }
-
-                    // intervalAccelerometerStream.pause();
+                    // setState(() {
+                    stopStream = true;
+                    setState(() {
+                      _streaming = false;
+                      intervalSubscription.cancel();
+                    });
                   },
                   icon: Icon(
                     Icons.stop,
@@ -114,7 +111,7 @@ class _SensorAppState extends State<SensorApp> {
                 )
               : IconButton(
                   onPressed: () async {
-                    final name = await openDialog();
+                    final name = await openDialog(context, controller);
                     if (name == null || name.isEmpty) return;
                     DatabaseReference ref = database.ref("users/$name");
 
@@ -126,7 +123,8 @@ class _SensorAppState extends State<SensorApp> {
                     setState(() {
                       _streaming = true;
                       newName = name;
-                      _saveItem(name,);
+                      // _saveItem(name,);
+                       intervalSubscription = saveItem(name, stopStream, database);
                     });
                   },
                   icon: Icon(
@@ -194,99 +192,61 @@ class _SensorAppState extends State<SensorApp> {
     );
   }
 
-  Future<String?> openDialog() => showDialog<String>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text("Your Name"),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            decoration: InputDecoration(hintText: "enter your name"),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: submit,
-              child: Text("Submit"),
-            ),
-          ],
-        ),
-      );
-  void submit() {
-    Navigator.of(context).pop(controller.text);
-  }
-
-  // void _updateItem() async {
-  //   return;
+  // Future<String?> openDialog() => showDialog<String>(
+  //       context: context,
+  //       builder: (context) => AlertDialog(
+  //         title: Text("Your Name"),
+  //         content: TextField(
+  //           controller: controller,
+  //           autofocus: true,
+  //           decoration: InputDecoration(hintText: "enter your name"),
+  //         ),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             onPressed: submit,
+  //             child: Text("Submit"),
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  // void submit() {
+  //   Navigator.of(context).pop(controller.text);
   // }
 
-  void _saveItem(String file_name,) async {
-    Stream<AccelerometerEvent> intervalAccelerometerStream =
-        accelerometerEventStream().transform(
-      IntervalTransformer<AccelerometerEvent>(
-        Duration(
-          milliseconds: 100,
-        ),
-      ),
-    );
-    print("sensors initialized");
+  // // void _updateItem() async {
+  // //   return;
+  // // }
 
-    _intervalSubscription = intervalAccelerometerStream.listen((event) async {
-      if (stopStream) {
-        _intervalSubscription.cancel();
-      }
-      print(event);
-      // print(file_name);
-      DatabaseReference ref = database.ref("users/$file_name");
-      DatabaseReference newRef = ref.push();
-      newRef.set({
-        "data": {
-          // "x": Random().nextDouble(),
-          "x": event.x,
-          "y": event.y,
-          "z": event.z,
-          "timestamp": DateTime.now().toString(),
-        },
-      });
+  // void _saveItem(String file_name,) async {
+  //   Stream<AccelerometerEvent> intervalAccelerometerStream =
+  //       accelerometerEventStream().transform(
+  //     IntervalTransformer<AccelerometerEvent>(
+  //       Duration(
+  //         milliseconds: 100,
+  //       ),
+  //     ),
+  //   );
+  //   print("sensors initialized");
 
-      // final response = await http.post(
-      //   url,
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: json.encode(
-      //     {
-      //       "sensor_type": "accelerometer",
-      //       "file_name": this.newName,
-      //       "data": {
-      //         "x": event.x,
-      //         "y": event.y,
-      //         "z": event.z,
-      //       }
-      //     },
-      //   ),
-      // );
+  //   _intervalSubscription = intervalAccelerometerStream.listen((event) async {
+  //     if (stopStream) {
+  //       _intervalSubscription.cancel();
+  //     }
+  //     print(event);
+  //     // print(file_name);
+  //     DatabaseReference ref = database.ref("users/$file_name");
+  //     DatabaseReference newRef = ref.push();
+  //     newRef.set({
+  //       "data": {
+  //         // "x": Random().nextDouble(),
+  //         "x": event.x,
+  //         "y": event.y,
+  //         "z": event.z,
+  //         "timestamp": DateTime.now().toString(),
+  //       },
+  //     });
 
-      // print(response.body);
-      // print(response.statusCode);
-    });
-    // final url = Uri.https(
-    // 'flutter-prep-bda5b-default-rtdb.firebaseio.com', 'new-list.json');
+  //   });
 
-    // final response = await http.post(
-    //   url,
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: json.encode(
-    //     {
-    //       "name": this.newName,
-    //       "timestamp": DateTime.now().toString(),
-    //       // "quantity": _enteredQuantity,
-    //       // "category": _selectedCategory.title,
-    //     },
-    //   ),
-    // );
-    // print(response.body);
-    // print(response.statusCode);
-  }
+  // }
 }
