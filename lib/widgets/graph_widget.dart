@@ -27,19 +27,6 @@ class _GraphWidgetState extends State<GraphWidget> with AutomaticKeepAliveClient
   @override
   void initState() {
     super.initState();
-    // _accStream =
-    //     accelerometerEventStream().map<double>((AccelerometerEvent event) {
-    //   switch (widget.axisName) {
-    //     case "x-axis":
-    //       return event.x;
-    //     case "y-axis":
-    //       return event.y;
-    //     case "z-axis":
-    //       return event.z;
-    //     default:
-    //       return event.x;
-    //   }
-    // });
 
     if (widget.sensorType == "accelerometer") {
       _sensorStream =
@@ -137,7 +124,7 @@ class NewGraphPainter extends CustomPainter {
   });
   @override
   void paint(Canvas canvas, Size size) {
-    final Paint _paint = Paint()
+    final Paint paint = Paint()
       ..color = Colors.black
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke
@@ -147,7 +134,7 @@ class NewGraphPainter extends CustomPainter {
       ..color = Colors.black
       ..strokeWidth = 1.0;
 
-    canvas.drawLine(Offset(10, 0), Offset(10, size.height), axisPaint);
+    canvas.drawLine(const Offset(10, 0), Offset(10, size.height), axisPaint);
     canvas.drawLine(Offset(0, size.height / 2),
         Offset(size.width, size.height / 2), axisPaint);
     final path = Path();
@@ -166,7 +153,7 @@ class NewGraphPainter extends CustomPainter {
         }
       }
     }
-    canvas.drawPath(path, _paint);
+    canvas.drawPath(path, paint);
   }
 
   @override

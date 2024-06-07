@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sensors_app/streaming_functions.dart';
 import 'package:sensors_app/widgets/graph_widget.dart';
@@ -8,7 +7,6 @@ import 'package:sensors_app/widgets/graph_widget.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
 import 'firebase_options.dart';
-import 'widgets/stream_transform.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -23,14 +21,14 @@ void main() async {
   );
 
   runApp(
-    MaterialApp(
+    const MaterialApp(
       home: SensorApp(),
     ),
   );
 }
 
 class SensorApp extends StatefulWidget {
-  SensorApp({super.key});
+  const SensorApp({super.key});
 
   @override
   State<SensorApp> createState() => _SensorAppState();
@@ -44,20 +42,14 @@ class _SensorAppState extends State<SensorApp> {
   String newName = '';
   late Stream<AccelerometerEvent> intervalAccelerometerStream;
   late Stream<GyroscopeEvent> intervalGyroscopeStream;
-  late StreamSubscription intervalSubscription;
   late StreamSubscription intervalAccSubscription;
   late StreamSubscription intervalGyroSubscription;
-  late Uri url;
   late FirebaseDatabase database;
 
   @override
   void initState() {
     super.initState();
-
     database = FirebaseDatabase.instance;
-
-    Stream<GyroscopeEvent> intervalGyroscopeStream = gyroscopeEventStream()
-        .transform(IntervalTransformer<GyroscopeEvent>(Duration(seconds: 2)));
     controller = TextEditingController();
   }
 
@@ -83,60 +75,56 @@ class _SensorAppState extends State<SensorApp> {
                 }
               });
             },
-            icon: _showGraph ? Icon(Icons.draw) : Icon(Icons.draw_outlined),
+            icon: _showGraph
+                ? const Icon(Icons.draw)
+                : const Icon(Icons.draw_outlined),
           ),
           _streaming
               ? IconButton(
                   onPressed: () {
-                    print("try to stop the stream");
                     stopStream = true;
                     setState(() {
                       _streaming = false;
-                      // intervalSubscription.cancel();
+                      isSwitchedAccelerometer.value =
+                          !isSwitchedAccelerometer.value;
+                      isSwitchedGyroscope.value = !isSwitchedGyroscope.value;
                       intervalAccSubscription.cancel();
                       intervalGyroSubscription.cancel();
-
                     });
                   },
-                  icon: Icon(Icons.stop),
+                  icon: const Icon(Icons.stop),
                 )
               : IconButton(
                   onPressed: () async {
-                    final name = await openDialog(context, controller, isSwitchedAccelerometer, isSwitchedGyroscope);
+                    final name = await openDialog(context, controller,
+                        isSwitchedAccelerometer, isSwitchedGyroscope);
                     if (name == null || name.isEmpty) return;
 
-                    print(
-                        "${isSwitchedAccelerometer.value} is acc toggle and ${isSwitchedGyroscope.value} is gyro");
                     DatabaseReference ref = database.ref("users/$name");
 
                     await ref.set({
-                      // "file_name": "$name",
-                      "file_name": "$name",
-                      // "sensor_type": "accelerometer",
+                      "file_name": name,
                     });
                     setState(() {
                       _streaming = true;
                       newName = name;
-                      // _saveItem(name,);
 
                       if (isSwitchedGyroscope.value) {
-                        print("start gyroscope data recording");
-                        intervalAccSubscription = saveSensorItem(name, stopStream, database, "gyroscope")!;
+                        intervalAccSubscription = saveSensorItem(
+                            name, stopStream, database, "gyroscope");
                       }
-                       if (isSwitchedAccelerometer.value) {
-                        print("start accelerometer data recording");
-                        intervalGyroSubscription = saveSensorItem(name, stopStream, database, "accelerometer")!;
-                      } 
-                      
-                      if (isSwitchedAccelerometer.value == false && isSwitchedGyroscope == false) {
-                        print("bruh none selected helo");
+                      if (isSwitchedAccelerometer.value) {
+                        intervalGyroSubscription = saveSensorItem(
+                            name, stopStream, database, "accelerometer");
+                      }
+
+                      if (isSwitchedAccelerometer.value == false &&
+                          isSwitchedGyroscope.value == false) {
                         return;
                       }
-                      // intervalSubscription =
-                          // saveSensorItem(name, stopStream, database, sensorType);
                     });
                   },
-                  icon: Icon(Icons.mic_off_outlined),
+                  icon: const Icon(Icons.mic),
                 ),
         ],
       ),
@@ -145,43 +133,42 @@ class _SensorAppState extends State<SensorApp> {
               child: ListView(
                 addAutomaticKeepAlives: true,
                 children: const [
-                  Text("Graph below"),
                   GraphWidget(
                     size: Size(double.infinity, 200),
                     maxPoints: 100,
                     axisName: "x-axis",
                     sensorType: "accelerometer",
                   ),
-                  GraphWidget(
-                    size: Size(double.infinity, 200),
-                    maxPoints: 100,
-                    axisName: "y-axis",
-                    sensorType: "accelerometer",
-                  ),
-                  GraphWidget(
-                    size: Size(double.infinity, 200),
-                    maxPoints: 100,
-                    axisName: "z-axis",
-                    sensorType: "accelerometer",
-                  ),
-                  GraphWidget(
-                    size: Size(double.infinity, 200),
-                    maxPoints: 100,
-                    axisName: "x-axis",
-                    sensorType: "gyroscope",
-                  ),
-                  GraphWidget(
-                    size: Size(double.infinity, 200),
-                    maxPoints: 100,
-                    axisName: "y-axis",
-                    sensorType: "gyroscope",
-                  ),
-                  GraphWidget(
-                    size: Size(double.infinity, 200),
-                    maxPoints: 100,
-                    axisName: "z-axis",
-                    sensorType: "gyroscope",
-                  ),
+                  // GraphWidget(
+                  //   size: Size(double.infinity, 200),
+                  //   maxPoints: 100,
+                  //   axisName: "y-axis",
+                  //   sensorType: "accelerometer",
+                  // ),
+                  // GraphWidget(
+                  //   size: Size(double.infinity, 200),
+                  //   maxPoints: 100,
+                  //   axisName: "z-axis",
+                  //   sensorType: "accelerometer",
+                  // ),
+                  // GraphWidget(
+                  //   size: Size(double.infinity, 200),
+                  //   maxPoints: 100,
+                  //   axisName: "x-axis",
+                  //   sensorType: "gyroscope",
+                  // ),
+                  // GraphWidget(
+                  //   size: Size(double.infinity, 200),
+                  //   maxPoints: 100,
+                  //   axisName: "y-axis",
+                  //   sensorType: "gyroscope",
+                  // ),
+                  // GraphWidget(
+                  //   size: Size(double.infinity, 200),
+                  //   maxPoints: 100,
+                  //   axisName: "z-axis",
+                  //   sensorType: "gyroscope",
+                  // ),
                 ],
               ),
             )
@@ -189,8 +176,8 @@ class _SensorAppState extends State<SensorApp> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Welcome!"),
-                  Text("${this.newName} how are you?"),
+                  const Text("Welcome!"),
+                  Text("$newName how are you?"),
                   ValueListenableBuilder(
                       valueListenable: isSwitchedAccelerometer,
                       builder: (context, value, _) =>
@@ -199,7 +186,6 @@ class _SensorAppState extends State<SensorApp> {
                       valueListenable: isSwitchedGyroscope,
                       builder: (context, value, _) =>
                           Text("recording $value gyroscope data")),
-                  // Text(this.newName),
                 ],
               ),
             ),
