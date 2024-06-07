@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sensors_app/streaming_functions.dart';
 import 'package:sensors_app/widgets/graph_widget.dart';
@@ -11,6 +12,9 @@ import 'widgets/stream_transform.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+
+ValueNotifier<bool> isSwitchedGyroscope = ValueNotifier<bool>(false);
+ValueNotifier<bool> isSwitchedAccelerometer = ValueNotifier<bool>(false);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,9 +45,11 @@ class _SensorAppState extends State<SensorApp> {
   late Stream<AccelerometerEvent> intervalAccelerometerStream;
   late Stream<GyroscopeEvent> intervalGyroscopeStream;
   late StreamSubscription intervalSubscription;
-  late StreamSubscription _intervalSubscription;
+  late StreamSubscription intervalAccSubscription;
+  late StreamSubscription intervalGyroSubscription;
   late Uri url;
   late FirebaseDatabase database;
+
   @override
   void initState() {
     super.initState();
@@ -86,28 +92,48 @@ class _SensorAppState extends State<SensorApp> {
                     stopStream = true;
                     setState(() {
                       _streaming = false;
-                      intervalSubscription.cancel();
+                      // intervalSubscription.cancel();
+                      intervalAccSubscription.cancel();
+                      intervalGyroSubscription.cancel();
+
                     });
                   },
                   icon: Icon(Icons.stop),
                 )
               : IconButton(
                   onPressed: () async {
-                    final name = await openDialog(context, controller);
+                    final name = await openDialog(context, controller, isSwitchedAccelerometer, isSwitchedGyroscope);
                     if (name == null || name.isEmpty) return;
+
+                    print(
+                        "${isSwitchedAccelerometer.value} is acc toggle and ${isSwitchedGyroscope.value} is gyro");
                     DatabaseReference ref = database.ref("users/$name");
 
                     await ref.set({
                       // "file_name": "$name",
                       "file_name": "$name",
-                      "sensor_type": "accelerometer",
+                      // "sensor_type": "accelerometer",
                     });
                     setState(() {
                       _streaming = true;
                       newName = name;
                       // _saveItem(name,);
-                      intervalSubscription =
-                          saveItem(name, stopStream, database);
+
+                      if (isSwitchedGyroscope.value) {
+                        print("start gyroscope data recording");
+                        intervalAccSubscription = saveSensorItem(name, stopStream, database, "gyroscope")!;
+                      }
+                       if (isSwitchedAccelerometer.value) {
+                        print("start accelerometer data recording");
+                        intervalGyroSubscription = saveSensorItem(name, stopStream, database, "accelerometer")!;
+                      } 
+                      
+                      if (isSwitchedAccelerometer.value == false && isSwitchedGyroscope == false) {
+                        print("bruh none selected helo");
+                        return;
+                      }
+                      // intervalSubscription =
+                          // saveSensorItem(name, stopStream, database, sensorType);
                     });
                   },
                   icon: Icon(Icons.mic_off_outlined),
@@ -165,12 +191,18 @@ class _SensorAppState extends State<SensorApp> {
                 children: [
                   Text("Welcome!"),
                   Text("${this.newName} how are you?"),
+                  ValueListenableBuilder(
+                      valueListenable: isSwitchedAccelerometer,
+                      builder: (context, value, _) =>
+                          Text("recording $value accelerometer data")),
+                  ValueListenableBuilder(
+                      valueListenable: isSwitchedGyroscope,
+                      builder: (context, value, _) =>
+                          Text("recording $value gyroscope data")),
                   // Text(this.newName),
                 ],
               ),
             ),
     );
   }
-
-  
 }
