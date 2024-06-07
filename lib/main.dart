@@ -63,7 +63,7 @@ class _SensorAppState extends State<SensorApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Testing graph widget"),
+        title: const Text("Sensors viz and recording"),
         actions: [
           IconButton(
             onPressed: () {

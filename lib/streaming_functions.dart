@@ -12,12 +12,10 @@ Future<String?> openDialog(
   ValueNotifier<bool> isSwitchedAccelerometer,
   ValueNotifier<bool> isSwitchedGyroscope,
 ) {
-  // bool isSwitchedAccelerometer = false;
-  // bool isSwitchedGyroscope = false;
   return showDialog<String>(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text("Enter recording file name"),
+      title: const Text("Enter recording file name"),
       content: StatefulBuilder(builder: (context, setState) {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -25,12 +23,12 @@ Future<String?> openDialog(
             TextField(
               controller: controller,
               autofocus: true,
-              decoration: InputDecoration(hintText: "enter file name"),
+              decoration: const InputDecoration(hintText: "enter file name"),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               children: [
-                Text("Accelerometer Recording"),
+                const Text("Accelerometer Recording"),
                 Switch(
                     value: isSwitchedAccelerometer.value,
                     onChanged: (value) {
@@ -41,10 +39,10 @@ Future<String?> openDialog(
                     }),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               children: [
-                Text("Gyroscope Recording"),
+                const Text("Gyroscope Recording"),
                 Switch(
                     value: isSwitchedGyroscope.value,
                     onChanged: (value) {
@@ -60,7 +58,7 @@ Future<String?> openDialog(
       actions: <Widget>[
         TextButton(
           onPressed: () => submit(context, controller),
-          child: Text("Start Recording"),
+          child: const Text("Start Recording"),
         ),
       ],
     ),
@@ -87,7 +85,7 @@ StreamSubscription saveSensorItem(
     Stream<AccelerometerEvent> intervalAccelerometerStream =
         accelerometerEventStream().transform(
       IntervalTransformer<AccelerometerEvent>(
-        Duration(seconds: 2),
+        const Duration(seconds: 2),
       ),
     );
 
@@ -96,7 +94,6 @@ StreamSubscription saveSensorItem(
         intervalSubscription.cancel();
       }
       print(event);
-      // print(file_name);
       DatabaseReference ref = database.ref("users/$fileName/$sensorType");
       DatabaseReference newRef = ref.push();
       newRef.set({
@@ -113,7 +110,7 @@ StreamSubscription saveSensorItem(
     Stream<GyroscopeEvent> intervalGyroscopeStream =
         gyroscopeEventStream().transform(
       IntervalTransformer<GyroscopeEvent>(
-        Duration(seconds: 2),
+        const Duration(seconds: 2),
       ),
     );
 
@@ -122,7 +119,6 @@ StreamSubscription saveSensorItem(
         intervalSubscription.cancel();
       }
       print(event);
-      // print(file_name);
       DatabaseReference ref = database.ref("users/$fileName/$sensorType");
       DatabaseReference newRef = ref.push();
       newRef.set({
@@ -136,11 +132,8 @@ StreamSubscription saveSensorItem(
     });
     return intervalSubscription;
   }
-  // return null;
-  // return "";
   throw StreamSubscriptionException();
 }
-
 
 class StreamSubscriptionException implements Exception{
   String errMsg() => "No StreamSubscription Returned";
