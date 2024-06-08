@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "917185126462",
+    "firebase_url": "https://flutter-prep-bda5b-default-rtdb.firebaseio.com",
+    "project_id": "flutter-prep-bda5b",
+    "storage_bucket": "flutter-prep-bda5b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:917185126462:android:d6b871358d45073007f16f",
+        "android_client_info": {
+          "package_name": "com.example.sensors_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQoBCx24PqB9cV1RSEuV37ZhiojJX2-0w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
