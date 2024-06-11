@@ -11,7 +11,7 @@ class IntervalTransformer<T> extends StreamTransformerBase<T, T> {
       late StreamController<T> controller;
       late StreamSubscription<T> subscription;
       Timer? timer;
-      late T? latestEvent;
+      T? latestEvent;
 
       void onTimer() {
         if (latestEvent != null) {

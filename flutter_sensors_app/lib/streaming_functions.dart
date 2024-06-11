@@ -82,10 +82,11 @@ StreamSubscription saveSensorItem(
   late StreamSubscription intervalSubscription;
 
   if (sensorType == "accelerometer") {
-    Stream<AccelerometerEvent> intervalAccelerometerStream =
-        accelerometerEventStream().transform(
-      IntervalTransformer<AccelerometerEvent>(
-        const Duration(seconds: 2),
+    Stream<UserAccelerometerEvent> intervalAccelerometerStream =
+        userAccelerometerEventStream().transform(
+      IntervalTransformer<UserAccelerometerEvent>(
+        // const Duration(milliseconds: 1000),
+        const Duration(milliseconds: 100),
       ),
     );
 
@@ -110,7 +111,8 @@ StreamSubscription saveSensorItem(
     Stream<GyroscopeEvent> intervalGyroscopeStream =
         gyroscopeEventStream().transform(
       IntervalTransformer<GyroscopeEvent>(
-        const Duration(seconds: 2),
+        // const Duration(milliseconds: 1000),
+        const Duration(milliseconds: 100),
       ),
     );
 
@@ -135,6 +137,6 @@ StreamSubscription saveSensorItem(
   throw StreamSubscriptionException();
 }
 
-class StreamSubscriptionException implements Exception{
+class StreamSubscriptionException implements Exception {
   String errMsg() => "No StreamSubscription Returned";
 }
