@@ -39,6 +39,7 @@ class _SensorAppState extends State<SensorApp> {
   bool _streaming = false;
   bool stopStream = false;
   late TextEditingController controller;
+  // late TextEditingController freqAccController;
   String newName = '';
   late Stream<AccelerometerEvent> intervalAccelerometerStream;
   late Stream<GyroscopeEvent> intervalGyroscopeStream;
@@ -51,6 +52,7 @@ class _SensorAppState extends State<SensorApp> {
     super.initState();
     database = FirebaseDatabase.instance;
     controller = TextEditingController();
+    // freqAccController = TextEditingController();
   }
 
   @override
@@ -63,7 +65,11 @@ class _SensorAppState extends State<SensorApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Sensors viz and recording"),
+        backgroundColor: Colors.deepPurple[300],
+        title: const Text(
+          "Sensors viz and recording",
+          style: TextStyle(fontSize: 19.0),
+        ),
         actions: [
           IconButton(
             onPressed: () {
@@ -85,19 +91,32 @@ class _SensorAppState extends State<SensorApp> {
                     stopStream = true;
                     setState(() {
                       _streaming = false;
-                      isSwitchedAccelerometer.value =
+                      if (isSwitchedAccelerometer.value) {
+                        isSwitchedAccelerometer.value =
                           !isSwitchedAccelerometer.value;
-                      isSwitchedGyroscope.value = !isSwitchedGyroscope.value;
-                      intervalAccSubscription.cancel();
-                      intervalGyroSubscription.cancel();
+                        print("cancelling acc subscription");
+                        intervalAccSubscription.cancel();
+                      }
+                      if (isSwitchedGyroscope.value) {
+                        isSwitchedGyroscope.value = !isSwitchedGyroscope.value;
+                        print("cancelling gyro subscription");
+                        intervalGyroSubscription.cancel();
+                      }
+                      
+                      
                     });
                   },
                   icon: const Icon(Icons.stop),
                 )
               : IconButton(
                   onPressed: () async {
-                    final name = await openDialog(context, controller,
-                        isSwitchedAccelerometer, isSwitchedGyroscope);
+                    final name = await openDialog(
+                      context,
+                      controller,
+                      // freqAccController,
+                      isSwitchedAccelerometer,
+                      isSwitchedGyroscope,
+                    );
                     if (name == null || name.isEmpty) return;
 
                     DatabaseReference ref = database.ref("users/$name");
@@ -109,13 +128,13 @@ class _SensorAppState extends State<SensorApp> {
                       _streaming = true;
                       newName = name;
 
-                      if (isSwitchedGyroscope.value) {
-                        intervalAccSubscription = saveSensorItem(
-                            name, stopStream, database, "gyroscope");
-                      }
                       if (isSwitchedAccelerometer.value) {
-                        intervalGyroSubscription = saveSensorItem(
+                        intervalAccSubscription = saveSensorItem(
                             name, stopStream, database, "accelerometer");
+                      }
+                      if (isSwitchedGyroscope.value) {
+                        intervalGyroSubscription = saveSensorItem(
+                            name, stopStream, database, "gyroscope");
                       }
 
                       if (isSwitchedAccelerometer.value == false &&
@@ -176,16 +195,24 @@ class _SensorAppState extends State<SensorApp> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Welcome!"),
-                  Text("$newName how are you?"),
                   ValueListenableBuilder(
                       valueListenable: isSwitchedAccelerometer,
-                      builder: (context, value, _) =>
-                          Text("recording $value accelerometer data")),
+                      builder: (context, value, _) {
+                        if (value) {
+                          return const Text("Streaming accelerometer values");
+                        }
+                        return const Text(
+                            "Accelerometer values not streaming currently");
+                      }),
                   ValueListenableBuilder(
                       valueListenable: isSwitchedGyroscope,
-                      builder: (context, value, _) =>
-                          Text("recording $value gyroscope data")),
+                      builder: (context, value, _) {
+                        if (value) {
+                          return const Text("Streaming Gyroscope values");
+                        }
+                        return const Text(
+                            "Gyroscope values not streaming currently");
+                      }),
                 ],
               ),
             ),

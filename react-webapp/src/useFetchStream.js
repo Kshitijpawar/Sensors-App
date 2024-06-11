@@ -4,19 +4,13 @@ const useFetchStream = (sessionid) => {
   const [data, setData] = useState(null);
   const [isPending, setIsPending] = useState(true);
   const [error, setError] = useState(null);
+
   
-
-  // if (sessionid !== null) {
-  //   console.log("session id is not null");
-  // } else {
-  //   console.log("session id is not passed");
-  // }
-
   useEffect(() => {
     // const abortCont = new AbortController();
     var dataRef;
     if (sessionid !== null) {
-       dataRef = ref(database, "users/" + sessionid);
+      dataRef = ref(database, "users/" + sessionid);
     } else {
       dataRef = ref(database, "users");
     } // Change to your data path}
@@ -24,7 +18,6 @@ const useFetchStream = (sessionid) => {
       dataRef,
       (snapshot) => {
         setData(snapshot.val());
-
         setIsPending(false);
       },
       (error) => {

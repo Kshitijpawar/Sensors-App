@@ -9,13 +9,14 @@ import 'widgets/stream_transform.dart';
 Future<String?> openDialog(
   BuildContext context,
   TextEditingController controller,
+  // TextEditingController freqAccController,
   ValueNotifier<bool> isSwitchedAccelerometer,
   ValueNotifier<bool> isSwitchedGyroscope,
 ) {
   return showDialog<String>(
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text("Enter recording file name"),
+      title: const Text("Stream Sensor Values to Firebase RTDB"),
       content: StatefulBuilder(builder: (context, setState) {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -23,7 +24,7 @@ Future<String?> openDialog(
             TextField(
               controller: controller,
               autofocus: true,
-              decoration: const InputDecoration(hintText: "enter file name"),
+              decoration: const InputDecoration(hintText: "enter recording file name"),
             ),
             const SizedBox(height: 20),
             Row(
@@ -37,6 +38,11 @@ Future<String?> openDialog(
                             !isSwitchedAccelerometer.value;
                       });
                     }),
+            //         TextField(
+            //   controller: freqAccController,
+            //   // autofocus: true,
+            //   decoration: const InputDecoration(hintText: "Enter sensor recording frequency (in ms)"),
+            // ),
               ],
             ),
             const SizedBox(height: 20),
@@ -69,9 +75,9 @@ void submit(BuildContext context, TextEditingController controller) {
   Navigator.of(context).pop(controller.text);
 }
 
-void stopAccStream(StreamSubscription intervalSubscription) {
-  intervalSubscription.cancel();
-}
+// void stopAccStream(StreamSubscription intervalSubscription) {
+//   intervalSubscription.cancel();
+// }
 
 StreamSubscription saveSensorItem(
   String fileName,
@@ -91,10 +97,10 @@ StreamSubscription saveSensorItem(
     );
 
     intervalSubscription = intervalAccelerometerStream.listen((event) async {
-      if (stopStream) {
-        intervalSubscription.cancel();
-      }
-      print(event);
+      // if (stopStream) {
+      //   intervalSubscription.cancel();
+      // }
+      // print(event);
       DatabaseReference ref = database.ref("users/$fileName/$sensorType");
       DatabaseReference newRef = ref.push();
       newRef.set({
@@ -117,10 +123,10 @@ StreamSubscription saveSensorItem(
     );
 
     intervalSubscription = intervalGyroscopeStream.listen((event) async {
-      if (stopStream) {
-        intervalSubscription.cancel();
-      }
-      print(event);
+      // if (stopStream) {
+      //   intervalSubscription.cancel();
+      // }
+      // print(event);
       DatabaseReference ref = database.ref("users/$fileName/$sensorType");
       DatabaseReference newRef = ref.push();
       newRef.set({
