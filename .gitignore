@@ -1,1 +1,4 @@
 react-webapp/src/FirebaseSettings.js
+flutter_sensors_app/lib/firebase.json
+flutter_sensors_app/android/app/google-services.json
+flutter_sensors_app/firebase_options.dart

@@ -52,12 +52,12 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDQoBCx24PqB9cV1RSEuV37ZhiojJX2-0w',
-    appId: '1:917185126462:android:d6b871358d45073007f16f',
-    messagingSenderId: '917185126462',
-    projectId: 'flutter-prep-bda5b',
-    databaseURL: 'https://flutter-prep-bda5b-default-rtdb.firebaseio.com',
-    storageBucket: 'flutter-prep-bda5b.appspot.com',
+    apiKey: 'AIzaSyCEYwFeJ3N6qIIW9zqGikoSnkNjYF-2jGY',
+    appId: '1:1044312788405:android:bf16e0098bda21d9bb5dfc',
+    messagingSenderId: '1044312788405',
+    projectId: 'sensorappdb',
+    databaseURL: 'https://sensorappdb-default-rtdb.firebaseio.com',
+    storageBucket: 'sensorappdb.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
