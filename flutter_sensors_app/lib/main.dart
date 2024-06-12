@@ -158,24 +158,24 @@ class _SensorAppState extends State<SensorApp> {
                     axisName: "x-axis",
                     sensorType: "accelerometer",
                   ),
-                  // GraphWidget(
-                  //   size: Size(double.infinity, 200),
-                  //   maxPoints: 100,
-                  //   axisName: "y-axis",
-                  //   sensorType: "accelerometer",
-                  // ),
-                  // GraphWidget(
-                  //   size: Size(double.infinity, 200),
-                  //   maxPoints: 100,
-                  //   axisName: "z-axis",
-                  //   sensorType: "accelerometer",
-                  // ),
-                  // GraphWidget(
-                  //   size: Size(double.infinity, 200),
-                  //   maxPoints: 100,
-                  //   axisName: "x-axis",
-                  //   sensorType: "gyroscope",
-                  // ),
+                  GraphWidget(
+                    size: Size(double.infinity, 200),
+                    maxPoints: 100,
+                    axisName: "y-axis",
+                    sensorType: "accelerometer",
+                  ),
+                  GraphWidget(
+                    size: Size(double.infinity, 200),
+                    maxPoints: 100,
+                    axisName: "z-axis",
+                    sensorType: "accelerometer",
+                  ),
+                  GraphWidget(
+                    size: Size(double.infinity, 200),
+                    maxPoints: 100,
+                    axisName: "x-axis",
+                    sensorType: "gyroscope",
+                  ),
                   // GraphWidget(
                   //   size: Size(double.infinity, 200),
                   //   maxPoints: 100,
