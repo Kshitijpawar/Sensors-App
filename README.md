@@ -16,7 +16,9 @@ This project comprises two applications:
   - One screen displays the accelerometer and gyroscope data.
   - Data is charted using a custom painter class for dynamic and interactive visualization.
     <!-- ![Mobile App Sensor Data Visualization](git_images\Screenshot_20240509-132226.png) -->
+    <p align= "left">
       <img src="git_images\Screenshot_20240611-215230.png" alt="Custom Painter class for viz." width="300">
+    </p>
 
 - **Data Recording and Streaming**:
   - Records sensor values (accelerometer and gyroscope).
