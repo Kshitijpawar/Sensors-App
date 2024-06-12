@@ -1,4 +1,6 @@
 # Project Title: Sensor Data Visualization and Streaming
+## Website hosted on Firebase
+https://sensorappdb.web.app/
 ## Motivation
 A data collection application which can be used to record sensors onboard smartphones for smart visualization and detection of anomalies or events
 ## Overview
