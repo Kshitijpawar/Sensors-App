@@ -61,8 +61,8 @@ This project comprises two applications:
   - Reads accelerometer and gyroscope data from Firebase Realtime Database.
   - Uses Chart.js to visualize the recorded sensor data in real-time.
   <p align="center">
-    <img src="git_images\Screenshot 2024-06-11 220038.png" alt="React webapp homepage" width="500">
-    <img src="git_images\Screenshot 2024-06-11 220005.png" alt="Charts page" width="500">
+    <img src="git_images\Screenshot 2024-06-11 220038.png" alt="React webapp homepage" width="900">
+    <img src="git_images\Screenshot 2024-06-11 220005.png" alt="Charts page" width="900">
   </p>
 
 ### Installation and Setup
