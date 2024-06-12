@@ -23,7 +23,7 @@ This project comprises two applications:
 - **Data Recording and Streaming**:
   - Records sensor values (accelerometer and gyroscope).
   - Streams the recorded data to Firebase Realtime Database in real-time.
-  <p align="center">
+  <p align="left">
     <img src="git_images\Screenshot_20240611-215248.png" alt="Dialog box for streaming" width="300">
     <img src="git_images\Screenshot_20240611-215254.png" alt="Statusfor streaming" width="300">
   </p>
