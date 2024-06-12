@@ -1,5 +1,6 @@
 # Project Title: Sensor Data Visualization and Streaming
-
+## Motivation
+A data collection application which can be used to record sensors onboard smartphones for smart visualization and detection of anomalies or events
 ## Overview
 
 This project comprises two applications:
@@ -14,7 +15,7 @@ This project comprises two applications:
 - **Sensor Data Visualization**:
 
   - One screen displays the accelerometer and gyroscope data.
-  - Data is charted using a custom painter class for dynamic and interactive visualization.
+  - Data is charted using a custom painter class for dynamic visualization.
     <!-- ![Mobile App Sensor Data Visualization](git_images\Screenshot_20240509-132226.png) -->
     <p align= "left">
       <img src="git_images\Screenshot_20240611-215230.png" alt="Custom Painter class for viz." width="300">
