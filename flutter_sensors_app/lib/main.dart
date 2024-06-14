@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+// import 'package:geolocator/geolocator.dart';
+// import 'package:sensors_app/gps_functions.dart';
 import 'package:sensors_app/streaming_functions.dart';
 import 'package:sensors_app/widgets/graph_widget.dart';
 
@@ -11,8 +14,11 @@ import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+//gps library function
+
 ValueNotifier<bool> isSwitchedGyroscope = ValueNotifier<bool>(false);
 ValueNotifier<bool> isSwitchedAccelerometer = ValueNotifier<bool>(false);
+ValueNotifier<bool> isSwitchedLocation = ValueNotifier<bool>(false);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,11 +51,16 @@ class _SensorAppState extends State<SensorApp> {
   late Stream<GyroscopeEvent> intervalGyroscopeStream;
   late StreamSubscription intervalAccSubscription;
   late StreamSubscription intervalGyroSubscription;
+  late StreamSubscription intervalLocationSubscription;
   late FirebaseDatabase database;
+
+  // String posLatitude = "no Lats";
+  // String posLongitude = "no Longs";
 
   @override
   void initState() {
     super.initState();
+    
     database = FirebaseDatabase.instance;
     controller = TextEditingController();
     // freqAccController = TextEditingController();
@@ -93,7 +104,7 @@ class _SensorAppState extends State<SensorApp> {
                       _streaming = false;
                       if (isSwitchedAccelerometer.value) {
                         isSwitchedAccelerometer.value =
-                          !isSwitchedAccelerometer.value;
+                            !isSwitchedAccelerometer.value;
                         print("cancelling acc subscription");
                         intervalAccSubscription.cancel();
                       }
@@ -102,8 +113,11 @@ class _SensorAppState extends State<SensorApp> {
                         print("cancelling gyro subscription");
                         intervalGyroSubscription.cancel();
                       }
-                      
-                      
+                      if (isSwitchedLocation.value) {
+                        isSwitchedLocation.value = !isSwitchedLocation.value;
+                        print("cancelling location subscription");
+                        intervalLocationSubscription.cancel();
+                      }
                     });
                   },
                   icon: const Icon(Icons.stop),
@@ -116,6 +130,7 @@ class _SensorAppState extends State<SensorApp> {
                       // freqAccController,
                       isSwitchedAccelerometer,
                       isSwitchedGyroscope,
+                      isSwitchedLocation,
                     );
                     if (name == null || name.isEmpty) return;
 
@@ -124,7 +139,7 @@ class _SensorAppState extends State<SensorApp> {
                     await ref.set({
                       "file_name": name,
                     });
-                    setState(() {
+                    setState(()  {
                       _streaming = true;
                       newName = name;
 
@@ -136,9 +151,15 @@ class _SensorAppState extends State<SensorApp> {
                         intervalGyroSubscription = saveSensorItem(
                             name, stopStream, database, "gyroscope");
                       }
+                      if (isSwitchedLocation.value) {
+                       
+                        intervalLocationSubscription = saveSensorItem(
+                            name, stopStream, database, "location");
+                      }
 
                       if (isSwitchedAccelerometer.value == false &&
-                          isSwitchedGyroscope.value == false) {
+                          isSwitchedGyroscope.value == false &&
+                          isSwitchedLocation.value == false) {
                         return;
                       }
                     });
@@ -196,23 +217,36 @@ class _SensorAppState extends State<SensorApp> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ValueListenableBuilder(
-                      valueListenable: isSwitchedAccelerometer,
-                      builder: (context, value, _) {
-                        if (value) {
-                          return const Text("Streaming accelerometer values");
-                        }
-                        return const Text(
-                            "Accelerometer values not streaming currently");
-                      }),
+                    valueListenable: isSwitchedAccelerometer,
+                    builder: (context, value, _) {
+                      if (value) {
+                        return const Text("Streaming accelerometer values");
+                      }
+                      return const Text(
+                          "Accelerometer values not streaming currently");
+                    },
+                  ),
                   ValueListenableBuilder(
-                      valueListenable: isSwitchedGyroscope,
-                      builder: (context, value, _) {
-                        if (value) {
-                          return const Text("Streaming Gyroscope values");
-                        }
-                        return const Text(
-                            "Gyroscope values not streaming currently");
-                      }),
+                    valueListenable: isSwitchedGyroscope,
+                    builder: (context, value, _) {
+                      if (value) {
+                        return const Text("Streaming Gyroscope values");
+                      }
+                      return const Text(
+                          "Gyroscope values not streaming currently");
+                    },
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: isSwitchedLocation,
+                    builder: (context, value, _) {
+                      if (value) {
+                        return const Text("Streaming Location values");
+                      }
+                      return const Text(
+                          "Location values not streaming currently");
+                    },
+                  ),
+                  
                 ],
               ),
             ),
