@@ -9,14 +9,11 @@ const SingleStreamPage = () => {
     isPending,
     error: errorTest,
   } = useFetchStream(streamid);
-//   console.log(dataTest);
   return (
-    <div>
-      {/* Hello World we're at {streamid} */}
-      <div>
+    // <div class= "content">
+    <>
         {dataTest && <CustomLineChart streamData={dataTest} />}
-      </div>
-    </div>
+    </>
   );
 };
 
