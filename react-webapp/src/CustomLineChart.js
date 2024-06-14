@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto";
 import CustomMap from "./CustomMap";
@@ -6,20 +5,18 @@ import CustomMap from "./CustomMap";
 const CustomLineChart = (streamData) => {
   var accData, accXData, accYData, accZData;
   var gyroData, gyroXData, gyroYData, gyroZData;
-  var timestampData;
+  // var timestampData;
+  var timestampAccData, timestampGyroData;
   var locationData, latVal, longVal;
   var coordinatesData = [];
-  const coordinates = [
-    [51.505, -0.09],
-    [51.51, -0.1],
-    [51.51, -0.12],
-  ];
+  
   // accelerometer variables
   try {
     accData = streamData.streamData["accelerometer"];
     accXData = Object.values(accData).map((idx) => idx.data.x);
     accYData = Object.values(accData).map((idx) => idx.data.y);
     accZData = Object.values(accData).map((idx) => idx.data.z);
+    timestampAccData = Object.values(accData).map((idx) => idx.data.timestamp);
   } catch {}
 
   // gyro variables
@@ -28,25 +25,21 @@ const CustomLineChart = (streamData) => {
     gyroXData = Object.values(gyroData).map((idx) => idx.data.x);
     gyroYData = Object.values(gyroData).map((idx) => idx.data.y);
     gyroZData = Object.values(gyroData).map((idx) => idx.data.z);
+    timestampGyroData = Object.values(gyroData).map(
+      (idx) => idx.data.timestamp
+    );
   } catch {}
 
-    try{
-      locationData = streamData.streamData["location"];
-      
-      latVal = Object.values(locationData).map((idx) => idx.data.latitude);
-      longVal = Object.values(locationData).map((idx) => idx.data.longitude);
-       coordinatesData = latVal.map((lat, index) => [lat, longVal[index]]);
+  try {
+    locationData = streamData.streamData["location"];
 
-      console.log(coordinatesData);
-    }catch{}
+    latVal = Object.values(locationData).map((idx) => idx.data.latitude);
+    longVal = Object.values(locationData).map((idx) => idx.data.longitude);
+    coordinatesData = latVal.map((lat, index) => [lat, longVal[index]]);
 
-  if (accData !== undefined) {
-    timestampData = Object.values(accData).map((idx) => idx.data.timestamp);
-  } else {
-    // console.log(gyroData);
-    timestampData = Object.values(gyroData).map((idx) => idx.data.timestamp);
-  }
-  // console.log(timestampData);
+    console.log(coordinatesData);
+  } catch {}
+
   return (
     <>
       <div className="custom-line-chart">
@@ -56,7 +49,7 @@ const CustomLineChart = (streamData) => {
             <Line
               datasetIdKey="id"
               data={{
-                labels: timestampData.slice(-50),
+                labels: timestampAccData.slice(-50),
                 datasets: [
                   {
                     id: 1,
@@ -80,7 +73,7 @@ const CustomLineChart = (streamData) => {
             <Line
               datasetIdKey="id"
               data={{
-                labels: timestampData,
+                labels: timestampAccData,
                 datasets: [
                   {
                     id: 1,
@@ -110,7 +103,7 @@ const CustomLineChart = (streamData) => {
             <Line
               datasetIdKey="id"
               data={{
-                labels: timestampData.slice(-50),
+                labels: timestampGyroData.slice(-50),
                 datasets: [
                   {
                     id: 1,
@@ -134,7 +127,7 @@ const CustomLineChart = (streamData) => {
             <Line
               datasetIdKey="id"
               data={{
-                labels: timestampData,
+                labels: timestampGyroData,
                 datasets: [
                   {
                     id: 1,
@@ -160,8 +153,7 @@ const CustomLineChart = (streamData) => {
         )}
       </div>
       <>
-        {/* <CustomMap coordinates= {coordinates} /> */}
-        <CustomMap coordinates= {coordinatesData} />
+        <CustomMap coordinates={coordinatesData} />
       </>
     </>
   );

@@ -10,7 +10,6 @@ const SingleStreamPage = () => {
     error: errorTest,
   } = useFetchStream(streamid);
   return (
-    // <div class= "content">
     <>
         {dataTest && <CustomLineChart streamData={dataTest} />}
     </>

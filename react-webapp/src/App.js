@@ -11,7 +11,6 @@ function App() {
       <div className="App">
         <Navbar></Navbar>
         <div className="content-single-page">
-          {/* <> */}
           <Switch>
             <Route exact path="/">
               <Home></Home>
@@ -22,10 +21,8 @@ function App() {
             <Route path="/:streamid">
               <SingleStreamPage />
             </Route>
-            
           </Switch>
         </div>
-        {/* </> */}
       </div>
     </Router>
   );

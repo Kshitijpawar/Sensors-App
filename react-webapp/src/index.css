@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap");
 
 /* base styles */
 * {
@@ -42,10 +42,10 @@
   display: flex;
 }
 
-.custom-line-chart{
+.custom-line-chart {
   width: 50%;
 }
-.new-map{
+.new-map {
   width: 50%;
 }
 
@@ -56,36 +56,16 @@
   border-bottom: 1px solid #fafafa;
 }
 .stream-links:hover {
-  box-shadow: 1px 3px 5px rgba(0,0,0,0.1);
+  box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.1);
 }
 .stream-links h2 {
   font-size: 20px;
   color: #f1356d;
   margin-bottom: 8px;
 }
-.stream-links a{
+.stream-links a {
   text-decoration: none;
 }
-
-
-/* blog details page */
-/* .blog-details h2 {
-  font-size: 20px;
-  color: #f1356d;
-  margin-bottom: 10px;
-}
-.blog-details div {
-  margin: 20px 0;
-}
-.blog-details button {
-  background: #f1356d;
-  color: #fff;
-  border: 0;
-  padding: 8px;
-  border-radius: 8px;
-  cursor: pointer;
-}
- */
 
 .leaflet-container {
   height: 100px;

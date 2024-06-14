@@ -1,9 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-// import 'package:geolocator/geolocator.dart';
-// import 'package:sensors_app/gps_functions.dart';
 import 'package:sensors_app/streaming_functions.dart';
 import 'package:sensors_app/widgets/graph_widget.dart';
 
@@ -13,8 +10,6 @@ import 'firebase_options.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
-
-//gps library function
 
 ValueNotifier<bool> isSwitchedGyroscope = ValueNotifier<bool>(false);
 ValueNotifier<bool> isSwitchedAccelerometer = ValueNotifier<bool>(false);
@@ -45,7 +40,6 @@ class _SensorAppState extends State<SensorApp> {
   bool _streaming = false;
   bool stopStream = false;
   late TextEditingController controller;
-  // late TextEditingController freqAccController;
   String newName = '';
   late Stream<AccelerometerEvent> intervalAccelerometerStream;
   late Stream<GyroscopeEvent> intervalGyroscopeStream;
@@ -54,16 +48,12 @@ class _SensorAppState extends State<SensorApp> {
   late StreamSubscription intervalLocationSubscription;
   late FirebaseDatabase database;
 
-  // String posLatitude = "no Lats";
-  // String posLongitude = "no Longs";
-
   @override
   void initState() {
     super.initState();
-    
+
     database = FirebaseDatabase.instance;
     controller = TextEditingController();
-    // freqAccController = TextEditingController();
   }
 
   @override
@@ -105,17 +95,14 @@ class _SensorAppState extends State<SensorApp> {
                       if (isSwitchedAccelerometer.value) {
                         isSwitchedAccelerometer.value =
                             !isSwitchedAccelerometer.value;
-                        print("cancelling acc subscription");
                         intervalAccSubscription.cancel();
                       }
                       if (isSwitchedGyroscope.value) {
                         isSwitchedGyroscope.value = !isSwitchedGyroscope.value;
-                        print("cancelling gyro subscription");
                         intervalGyroSubscription.cancel();
                       }
                       if (isSwitchedLocation.value) {
                         isSwitchedLocation.value = !isSwitchedLocation.value;
-                        print("cancelling location subscription");
                         intervalLocationSubscription.cancel();
                       }
                     });
@@ -127,7 +114,6 @@ class _SensorAppState extends State<SensorApp> {
                     final name = await openDialog(
                       context,
                       controller,
-                      // freqAccController,
                       isSwitchedAccelerometer,
                       isSwitchedGyroscope,
                       isSwitchedLocation,
@@ -139,7 +125,7 @@ class _SensorAppState extends State<SensorApp> {
                     await ref.set({
                       "file_name": name,
                     });
-                    setState(()  {
+                    setState(() {
                       _streaming = true;
                       newName = name;
 
@@ -152,7 +138,6 @@ class _SensorAppState extends State<SensorApp> {
                             name, stopStream, database, "gyroscope");
                       }
                       if (isSwitchedLocation.value) {
-                       
                         intervalLocationSubscription = saveSensorItem(
                             name, stopStream, database, "location");
                       }
@@ -246,7 +231,6 @@ class _SensorAppState extends State<SensorApp> {
                           "Location values not streaming currently");
                     },
                   ),
-                  
                 ],
               ),
             ),

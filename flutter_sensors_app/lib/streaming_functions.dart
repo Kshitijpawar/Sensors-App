@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:sensors_app/gps_functions.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
 import 'widgets/stream_transform.dart';
@@ -11,20 +10,16 @@ import 'widgets/stream_transform.dart';
 Future<String?> openDialog(
   BuildContext context,
   TextEditingController controller,
-  // TextEditingController freqAccController,
   ValueNotifier<bool> isSwitchedAccelerometer,
   ValueNotifier<bool> isSwitchedGyroscope,
   ValueNotifier<bool> isSwitchedLocation,
 ) {
-  // String checkPermissionGranted = await determinePermissionGranted();
-  // print(checkPermissionGranted);
   return showDialog<String>(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text("Stream Sensor Values to Firebase RTDB"),
           content: StatefulBuilder(builder: (context, setState) {
-            // String hasLocationPermission = "no location permission granted";
             Future<String> determinePosition() async {
               bool serviceEnabled;
               LocationPermission permission;
@@ -95,45 +90,31 @@ Future<String?> openDialog(
                           }),
                     ],
                   ),
-                  Row(
-                    children: [
-                      const Text("Location Recording"),
-                      Switch(
-                          value: isSwitchedLocation.value,
-                          onChanged: (value) {
-                            setState(() {
-                              isSwitchedLocation.value =
-                                  !isSwitchedLocation.value;
-                            });
-                          }),
-                    ],
-                  ),
-                  // FutureBuilder(
-                  //   future: determinePosition(),
-                  //   builder:
-                  //       (BuildContext context, AsyncSnapshot<String> snapshot) {
-                  //     if (snapshot.connectionState == ConnectionState.waiting) {
-                  //       return Text("loading");
-                  //     } else if (snapshot.hasError) {
-                  //       return Text('Error: ${snapshot.error}');
-                  //     } else {
-                  //       // return Text('Result: ${snapshot.data}');
-                  //       return Row(
-                  //         children: [
-                  //           const Text("Location Recording"),
-                  //           Switch(
-                  //               value: isSwitchedLocation.value,
-                  //               onChanged: (value) {
-                  //                 setState(() {
-                  //                   isSwitchedLocation.value =
-                  //                       !isSwitchedLocation.value;
-                  //                 });
-                  //               }),
-                  //         ],
-                  //       );
-                  //     }
-                  //   },
-                  // ),
+                  FutureBuilder<String>(
+                      future: determinePosition(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Text("Loading");
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        } else {
+                          return Row(
+                            children: [
+                              const Text("Location Recording"),
+                              Switch(
+                                value: isSwitchedLocation.value,
+                                onChanged: (value) {
+                                  setState(() {
+                                    isSwitchedLocation.value =
+                                        !isSwitchedLocation.value;
+                                  });
+                                },
+                              ),
+                            ],
+                          );
+                        }
+                      }),
                 ],
               ),
             );
@@ -164,7 +145,7 @@ StreamSubscription saveSensorItem(
     Stream<UserAccelerometerEvent> intervalAccelerometerStream =
         userAccelerometerEventStream().transform(
       IntervalTransformer<UserAccelerometerEvent>(
-        // const Duration(milliseconds: 1000),
+        // const Duration(milliseconds: 1),
         const Duration(milliseconds: 100),
       ),
     );
@@ -186,7 +167,7 @@ StreamSubscription saveSensorItem(
     Stream<GyroscopeEvent> intervalGyroscopeStream =
         gyroscopeEventStream().transform(
       IntervalTransformer<GyroscopeEvent>(
-        // const Duration(milliseconds: 1000),
+        // const Duration(milliseconds: 1),
         const Duration(milliseconds: 100),
       ),
     );
