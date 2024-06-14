@@ -5,15 +5,13 @@ const useFetchStream = (sessionid) => {
   const [isPending, setIsPending] = useState(true);
   const [error, setError] = useState(null);
 
-  
   useEffect(() => {
-    // const abortCont = new AbortController();
     var dataRef;
     if (sessionid !== null) {
       dataRef = ref(database, "users/" + sessionid);
     } else {
       dataRef = ref(database, "users");
-    } // Change to your data path}
+    }
     const subscribeEvent = onValue(
       dataRef,
       (snapshot) => {
