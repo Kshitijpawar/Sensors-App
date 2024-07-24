@@ -13,6 +13,7 @@ import 'package:firebase_database/firebase_database.dart';
 
 ValueNotifier<bool> isSwitchedGyroscope = ValueNotifier<bool>(false);
 ValueNotifier<bool> isSwitchedAccelerometer = ValueNotifier<bool>(false);
+ValueNotifier<bool> isSwitchedLocation = ValueNotifier<bool>(false);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,20 +40,20 @@ class _SensorAppState extends State<SensorApp> {
   bool _streaming = false;
   bool stopStream = false;
   late TextEditingController controller;
-  // late TextEditingController freqAccController;
   String newName = '';
   late Stream<AccelerometerEvent> intervalAccelerometerStream;
   late Stream<GyroscopeEvent> intervalGyroscopeStream;
   late StreamSubscription intervalAccSubscription;
   late StreamSubscription intervalGyroSubscription;
+  late StreamSubscription intervalLocationSubscription;
   late FirebaseDatabase database;
 
   @override
   void initState() {
     super.initState();
+
     database = FirebaseDatabase.instance;
     controller = TextEditingController();
-    // freqAccController = TextEditingController();
   }
 
   @override
@@ -93,17 +94,17 @@ class _SensorAppState extends State<SensorApp> {
                       _streaming = false;
                       if (isSwitchedAccelerometer.value) {
                         isSwitchedAccelerometer.value =
-                          !isSwitchedAccelerometer.value;
-                        print("cancelling acc subscription");
+                            !isSwitchedAccelerometer.value;
                         intervalAccSubscription.cancel();
                       }
                       if (isSwitchedGyroscope.value) {
                         isSwitchedGyroscope.value = !isSwitchedGyroscope.value;
-                        print("cancelling gyro subscription");
                         intervalGyroSubscription.cancel();
                       }
-                      
-                      
+                      if (isSwitchedLocation.value) {
+                        isSwitchedLocation.value = !isSwitchedLocation.value;
+                        intervalLocationSubscription.cancel();
+                      }
                     });
                   },
                   icon: const Icon(Icons.stop),
@@ -113,9 +114,9 @@ class _SensorAppState extends State<SensorApp> {
                     final name = await openDialog(
                       context,
                       controller,
-                      // freqAccController,
                       isSwitchedAccelerometer,
                       isSwitchedGyroscope,
+                      isSwitchedLocation,
                     );
                     if (name == null || name.isEmpty) return;
 
@@ -136,9 +137,14 @@ class _SensorAppState extends State<SensorApp> {
                         intervalGyroSubscription = saveSensorItem(
                             name, stopStream, database, "gyroscope");
                       }
+                      if (isSwitchedLocation.value) {
+                        intervalLocationSubscription = saveSensorItem(
+                            name, stopStream, database, "location");
+                      }
 
                       if (isSwitchedAccelerometer.value == false &&
-                          isSwitchedGyroscope.value == false) {
+                          isSwitchedGyroscope.value == false &&
+                          isSwitchedLocation.value == false) {
                         return;
                       }
                     });
@@ -196,23 +202,35 @@ class _SensorAppState extends State<SensorApp> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ValueListenableBuilder(
-                      valueListenable: isSwitchedAccelerometer,
-                      builder: (context, value, _) {
-                        if (value) {
-                          return const Text("Streaming accelerometer values");
-                        }
-                        return const Text(
-                            "Accelerometer values not streaming currently");
-                      }),
+                    valueListenable: isSwitchedAccelerometer,
+                    builder: (context, value, _) {
+                      if (value) {
+                        return const Text("Streaming accelerometer values");
+                      }
+                      return const Text(
+                          "Accelerometer values not streaming currently");
+                    },
+                  ),
                   ValueListenableBuilder(
-                      valueListenable: isSwitchedGyroscope,
-                      builder: (context, value, _) {
-                        if (value) {
-                          return const Text("Streaming Gyroscope values");
-                        }
-                        return const Text(
-                            "Gyroscope values not streaming currently");
-                      }),
+                    valueListenable: isSwitchedGyroscope,
+                    builder: (context, value, _) {
+                      if (value) {
+                        return const Text("Streaming Gyroscope values");
+                      }
+                      return const Text(
+                          "Gyroscope values not streaming currently");
+                    },
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: isSwitchedLocation,
+                    builder: (context, value, _) {
+                      if (value) {
+                        return const Text("Streaming Location values");
+                      }
+                      return const Text(
+                          "Location values not streaming currently");
+                    },
+                  ),
                 ],
               ),
             ),

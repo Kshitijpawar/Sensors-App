@@ -71,6 +71,7 @@ class _GraphWidgetState extends State<GraphWidget> with AutomaticKeepAliveClient
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     late double maxYvalTest = -double.infinity;
     late double minYvalTest = double.infinity;
     return StreamBuilder<double>(
