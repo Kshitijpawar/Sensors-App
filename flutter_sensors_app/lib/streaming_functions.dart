@@ -42,14 +42,11 @@ Future<String?> openDialog(
                     "Location permissions are permanently denied, we cannot request permissions");
               }
               return Future.value("location permission granted");
-              // return await Geolocator.getCurrentPosition(
-              // desiredAccuracy: LocationAccuracy.high);
             }
 
             return SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                // crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextField(
                     controller: controller,
@@ -57,7 +54,6 @@ Future<String?> openDialog(
                     decoration: const InputDecoration(
                         hintText: "enter recording file name"),
                   ),
-                  // const SizedBox(height: 10),
                   Row(
                     children: [
                       const Text("Accelerometer Recording"),
@@ -76,7 +72,6 @@ Future<String?> openDialog(
                       // ),
                     ],
                   ),
-                  // const SizedBox(height: 15),
                   Row(
                     children: [
                       const Text("Gyroscope Recording"),
