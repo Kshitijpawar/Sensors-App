@@ -53,6 +53,8 @@ class _SensorAppState extends State<SensorApp> {
     super.initState();
 
     database = FirebaseDatabase.instance;
+    database.setPersistenceEnabled(true);
+    database.setPersistenceCacheSizeBytes(10000000);
     controller = TextEditingController();
   }
 
